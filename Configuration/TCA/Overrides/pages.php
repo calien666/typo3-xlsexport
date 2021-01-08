@@ -10,6 +10,6 @@ call_user_func(function () {
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::registerPageTSConfigFile(
         'xlsexport',
         'Configuration/PageTSconfig/page.tsconfig',
-        '(SUDHAUS7) Excel Exporter Basis Definition'
+        'Excel Exporter Basis Definition'
     );
 });

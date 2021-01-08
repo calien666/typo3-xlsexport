@@ -69,7 +69,7 @@ class XlsexportController extends ActionController
         } else {
             $datasets = [];
 
-            $this->loadTSconfig($curr_id);
+            $this->loadTSconfig((int)$curr_id);
 
             $hookArray = [];
             if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['xlsexport']['alternateQueries'])) {
@@ -146,7 +146,7 @@ class XlsexportController extends ActionController
     {
         $curr_id = $GLOBALS['_GET']['id'];
 
-        $this->loadTSconfig($curr_id);
+        $this->loadTSconfig((int)$curr_id);
 
         $settings = $this->settings['exports.'][$config . '.'];
 

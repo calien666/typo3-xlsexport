@@ -7,7 +7,7 @@ if (!defined('TYPO3_MODE')) {
 
 // Backend Modules
 \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerModule(
-    'SUDHAUS7.xlsexport',
+    'Calien.xlsexport',
     'web',
     'xlsexport',
     '',

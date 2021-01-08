@@ -4,17 +4,17 @@ $EM_CONF[$_EXTKEY] = [
     'title' => 'Calien - XLS Exporter',
     'description' => 'Excel exporter, fully configurable for every table',
     'category' => 'module',
-    'author' => 'Markus Hofmann',
+    'author' => 'Markus Hofmann & Frank Berger',
     'author_email' => 'typo3@calien.de',
     'author_company' => '',
     'state' => 'beta',
     'clearCacheOnLoad' => 0,
-    'version' => '1.0.2',
+    'version' => '1.0.3',
     'constraints' => [
         'depends' => [
-            'extbase' => '9.5.0-9.5.99',
-            'fluid' => '9.5.0-9.5.99',
-            'typo3' => '9.5.0-9.5.99',
+            'extbase' => '8.7.0-10.4.99',
+            'fluid' => '8.7.0-10.4.99',
+            'typo3' => '8.7.0-10.4.99',
         ],
         'conflicts' => [
         ],
