@@ -1,7 +1,7 @@
 {
   "name": "calien/xlsexport",
   "description": "Calien - XLS-Exporter",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "type": "typo3-cms-extension",
   "license": "MIT",
   "authors": [
