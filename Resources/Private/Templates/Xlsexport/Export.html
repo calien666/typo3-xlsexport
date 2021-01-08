@@ -1,0 +1,8 @@
+<f:layout name="Default" />
+<f:section name="main">
+	<p>Die Datensätze wurden exportiert.</p>
+	<p>Die erstellte Excel-Datei ist die folgende: <f:link.external uri="{fileurl}">{fileurl}</f:link.external></p>
+	<f:if condition="{noarchive}">
+		<p>Es wurde kein Archivordner angegeben, daher bleiben die Datensätze im aktuellen Ordner.</p>
+	</f:if>
+</f:section>
