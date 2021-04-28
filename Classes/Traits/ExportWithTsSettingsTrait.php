@@ -60,11 +60,11 @@ trait ExportWithTsSettingsTrait
         $exportfieldnames = [];
         $exportfields = [];
 
-        foreach ($settings['exportfields.'] as $field => $value) {
-            $exportfields[$field] = $value;
+        foreach ($settings['exportfields.'] as $value) {
+            $exportfields[] = $value;
         }
-        foreach ($settings['exportfieldnames.'] as $names => $value) {
-            $exportfieldnames[$names] = $value;
+        foreach ($settings['exportfieldnames.'] as $value) {
+            $exportfieldnames[] = $value;
         }
         $exportQuery = $settings['export'];
         if (array_key_exists($settings['table'], $hookArray) && is_array($hookArray[$settings['table']])) {

@@ -64,19 +64,10 @@ trait ExportTrait
         foreach ($dataset as $item) {
             $data[] = $item;
         }
-        $arguments = [
-            [
-                'data' => $data,
-                'table' => $table
-            ]
-        ];
-        /*
-                $arguments = $this->signalSlotDispatcher->dispatch(__CLASS__, 'beforeDataWrite', $arguments);
-                $data = $arguments[0]['data'];
-        */
-        foreach ($data as $curr_number => $curr_data) {
+
+        foreach ($data as $currentData) {
             foreach ($exportFields as $field => $value) {
-                $sheet->setCellValue($this->cols[$field] . $this->rowCount, $curr_data[$value]);
+                $sheet->setCellValue($this->cols[$field] . $this->rowCount, $currentData[$value]);
             }
 
             if (array_key_exists($table, $hookArray) && is_array($hookArray[$table])) {
