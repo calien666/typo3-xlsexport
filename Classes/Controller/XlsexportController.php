@@ -135,11 +135,13 @@ class XlsexportController extends ActionController
      * @param string $config
      * @param null $value
      *
+     * @return string
+     *
      * @throws Exception
      * @throws \Doctrine\DBAL\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
-    public function exportAction($config, $value = null)
+    public function exportAction($config, $value = null): string
     {
         $currentId = (int)$GLOBALS['_GET']['id'];
 
@@ -183,7 +185,7 @@ class XlsexportController extends ActionController
             'max-age=0'
         );
         $this->response->setContent($file);
-        //return $this->response->getContent();
+        return $this->response->getContent();
     }
 
     /**
