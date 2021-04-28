@@ -7,7 +7,6 @@ namespace Calien\Xlsexport\Controller;
 use Calien\Xlsexport\Traits\ExportWithTsSettingsTrait;
 use Doctrine\DBAL\Driver\Exception;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\ResponseInterface;
@@ -61,14 +60,14 @@ class XlsexportController extends ActionController
      */
     public function indexAction()
     {
-        $curr_id = $GLOBALS['_GET']['id'];
+        $currentId = $GLOBALS['_GET']['id'];
 
-        if ($curr_id == 0 || is_null($curr_id)) {
-            $this->view->assign('id', $curr_id);
+        if ($currentId == 0 || is_null($currentId)) {
+            $this->view->assign('id', $currentId);
         } else {
             $datasets = [];
 
-            $this->loadTSconfig((int)$curr_id);
+            $this->loadTSconfig((int)$currentId);
 
             $hookArray = [];
             if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['xlsexport']['alternateQueries'])) {
@@ -90,7 +89,7 @@ class XlsexportController extends ActionController
                             }
                         }
 
-                        $statement = sprintf($checkQuery, $curr_id);
+                        $statement = sprintf($checkQuery, $currentId);
                         $dbQuery = $this->dbConnection->getQueryBuilderForTable($table)->getConnection();
                         $result = $dbQuery->executeQuery($statement)->fetchAllAssociative();
 
@@ -110,11 +109,11 @@ class XlsexportController extends ActionController
                 }
             }
 
-            $this->view->assign('id', $curr_id);
+            $this->view->assign('id', $currentId);
             $this->view->assign('settings', $this->settings);
             $this->view->assign('datasets', $datasets);
             $additionalData = [];
-            if ($curr_id > 0) {
+            if ($currentId > 0) {
                 if (array_key_exists('additionalData', $hookArray)) {
                     foreach ($hookArray['additionalData'] as $classObj) {
                         $hookObj = GeneralUtility::makeInstance($classObj);
@@ -144,9 +143,9 @@ class XlsexportController extends ActionController
      */
     public function exportAction($config, $value = null): ResponseInterface
     {
-        $currentId = $GLOBALS['_GET']['id'];
+        $currentId = (int)$GLOBALS['_GET']['id'];
 
-        $this->loadTSconfig((int)$currentId);
+        $this->loadTSconfig($currentId);
 
         $settings = $this->settings['exports.'][$config . '.'];
 
@@ -157,14 +156,14 @@ class XlsexportController extends ActionController
 
         //ins Archiv verschieben
         if ($settings['archive']) {
-            $pid_archive = $settings['archive'];
+            $archive = $settings['archive'];
 
             $dbQuery = $this->dbConnection->getQueryBuilderForTable($settings['table']);
             $dbQuery->update($settings['table'])
                 ->where(
-                    $dbQuery->expr()->eq('pid', $dbQuery->createNamedParameter($currentId))
+                    $dbQuery->expr()->eq('pid', $dbQuery->createNamedParameter($currentId, \PDO::PARAM_INT))
                 )
-                ->set('pid', $pid_archive)
+                ->set('pid', $dbQuery->createNamedParameter($archive, \PDO::PARAM_INT))
                 ->execute();
         }
 
