@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Calien\Xlsexport\Controller;
 
-use Calien\Xlsexport\Traits\ExportTrait;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
+use Calien\Xlsexport\Traits\ExportWithTsSettingsTrait;
+use Doctrine\DBAL\Driver\Exception;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Extbase\Mvc\ResponseInterface;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
 /**
@@ -21,7 +22,7 @@ use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
  */
 class XlsexportController extends ActionController
 {
-    use ExportTrait;
+    use ExportWithTsSettingsTrait;
 
     /**
      * @var Dispatcher
@@ -37,10 +38,6 @@ class XlsexportController extends ActionController
      * @var array
      */
     private $modTSconfig;
-    /**
-     * @var string
-     */
-    private $moduleName = 'tx_xlsexport';
 
     /**
      * @var object|ConnectionPool
@@ -59,6 +56,8 @@ class XlsexportController extends ActionController
      * action index
      *
      * @return void
+     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
      */
     public function indexAction()
     {
@@ -93,7 +92,7 @@ class XlsexportController extends ActionController
 
                         $statement = sprintf($checkQuery, $curr_id);
                         $dbQuery = $this->dbConnection->getQueryBuilderForTable($table)->getConnection();
-                        $result = $dbQuery->fetchAll($statement);
+                        $result = $dbQuery->executeQuery($statement)->fetchAllAssociative();
 
                         // if all datasets from this page should be exported
                         if (sizeof($result) == 1) {
@@ -135,25 +134,26 @@ class XlsexportController extends ActionController
     /**
      * action export
      * @param string $config
-     * @param string $value
+     * @param null $value
      *
-     * @return void
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
-     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
-     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
+     * @return ResponseInterface
+     *
+     * @throws Exception
+     * @throws \Doctrine\DBAL\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
-    public function exportAction($config, $value = null)
+    public function exportAction($config, $value = null): ResponseInterface
     {
-        $curr_id = $GLOBALS['_GET']['id'];
+        $currentId = $GLOBALS['_GET']['id'];
 
-        $this->loadTSconfig((int)$curr_id);
+        $this->loadTSconfig((int)$currentId);
 
         $settings = $this->settings['exports.'][$config . '.'];
 
         if (!is_null($value)) {
             $settings['value'] = $value;
         }
-        $this->doExport($settings, $curr_id);
+        $file = $this->doExport($settings, $currentId);
 
         //ins Archiv verschieben
         if ($settings['archive']) {
@@ -162,81 +162,31 @@ class XlsexportController extends ActionController
             $dbQuery = $this->dbConnection->getQueryBuilderForTable($settings['table']);
             $dbQuery->update($settings['table'])
                 ->where(
-                    $dbQuery->expr()->eq('pid', $dbQuery->createNamedParameter($curr_id))
+                    $dbQuery->expr()->eq('pid', $dbQuery->createNamedParameter($currentId))
                 )
                 ->set('pid', $pid_archive)
                 ->execute();
         }
-    }
 
-    /**
-     * @param array $settings
-     * @param int $curr_id
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
-     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException
-     * @throws \TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException
-     */
-    protected function doExport($settings, $curr_id)
-    {
-        $hookArray = [];
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['xlsexport']['alternateQueries'])) {
-            $hookArray = $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['xlsexport']['alternateQueries'];
-        }
-
-        $exportfieldnames = [];
-        $exportfields = [];
-
-        foreach ($settings['exportfields.'] as $field => $value) {
-            $exportfields[] = $value;
-        }
-        foreach ($settings['exportfieldnames.'] as $names => $value) {
-            $exportfieldnames[] = $value;
-        }
-        $exportQuery = $settings['export'];
-        if (array_key_exists($settings['table'], $hookArray) && is_array($hookArray[$settings['table']])) {
-            foreach ($hookArray[$settings['table']] as $classObj) {
-                $hookObj = GeneralUtility::makeInstance($classObj);
-                if (method_exists($hookObj, 'alternateExportQuery')) {
-                    $exportQuery = $hookObj->alternateExportQuery($exportQuery, $this, $settings['value']);
-                }
-            }
-        }
-
-        $statement = sprintf($exportQuery, $curr_id);
-        $dbQuery = $this->dbConnection->getQueryBuilderForTable($settings['table'])->getConnection();
-        $result = $dbQuery->fetchAll($statement);
-
-        $sheet = $this->loadSheet();
-
-        $this->rowCount = 1;
-
-        $headerManipulated = false;
-        if (array_key_exists($settings['table'], $hookArray) && is_array($hookArray[$settings['table']])) {
-            foreach ($hookArray[$settings['table']] as $classObj) {
-                $hookObj = GeneralUtility::makeInstance($classObj);
-                if (method_exists($hookObj, 'alternateHeaderLine')) {
-                    $hookObj->alternateHeaderLine($sheet, $this, $exportfieldnames, $this->rowCount);
-                    $headerManipulated = true;
-                }
-            }
-        }
-
-        if (!$headerManipulated) {
-            // Zeile mit den Spaltenbezeichungen
-            $this->writeHeader($sheet, $exportfieldnames);
-        }
-
-        // Die Datensätze eintragen
-
-        $this->writeExcel($sheet, $result, $exportfields, $settings['table'], (bool)$settings['autofilter'], $hookArray);
-
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header(sprintf('Content-Disposition: attachment;filename="%s_%s_%d.xls"', date('Y-m-d-His'), $settings['table'], $curr_id));
-        header('Cache-Control: max-age=0');
-
-        $objWriter = IOFactory::createWriter($this->spreadSheet, 'Xls');
-        $objWriter->save('php://output');
-        exit;
+        $this->response->setHeader(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+        $this->response->setHeader(
+            'Content-Disposition',
+            sprintf(
+                'attachment;filename="%s_%s_%d.xls"',
+                date('Y-m-d-His'),
+                $settings['table'],
+                $currentId
+            )
+        );
+        $this->response->setHeader(
+            'Cache-Control',
+            'max-age=0'
+        );
+        $this->response->setContent($file);
+        return $this->response;
     }
 
     /**
@@ -261,17 +211,5 @@ class XlsexportController extends ActionController
     public function getCols()
     {
         return $this->cols;
-    }
-
-    private function loadTSconfig(int $curr_id)
-    {
-        $TSconfig = BackendUtility::getPagesTSconfig($curr_id, 'mod.');
-        $this->modTSconfig = $TSconfig['mod.'][$this->moduleName . '.'];
-
-        if (is_array($this->settings) && !empty($this->settings)) {
-            $this->settings = array_merge_recursive($this->settings, $this->modTSconfig['settings.']);
-        } else {
-            $this->settings = $this->modTSconfig['settings.'];
-        }
     }
 }

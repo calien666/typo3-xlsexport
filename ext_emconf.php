@@ -9,12 +9,12 @@ $EM_CONF[$_EXTKEY] = [
     'author_company' => '',
     'state' => 'beta',
     'clearCacheOnLoad' => 0,
-    'version' => '1.0.3',
+    'version' => '2.0.0',
     'constraints' => [
         'depends' => [
-            'extbase' => '8.7.0-10.4.99',
-            'fluid' => '8.7.0-10.4.99',
-            'typo3' => '8.7.0-10.4.99',
+            'extbase' => '10.4.0-10.4.99',
+            'fluid' => '10.4.0-10.4.99',
+            'typo3' => '10.4.0-10.4.99',
         ],
         'conflicts' => [
         ],

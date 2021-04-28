@@ -60,3 +60,5 @@ tests/_output/*
 /var
 /vendor
 /config
+
+/.ddev
