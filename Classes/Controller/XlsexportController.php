@@ -135,13 +135,11 @@ class XlsexportController extends ActionController
      * @param string $config
      * @param null $value
      *
-     * @return ResponseInterface
-     *
      * @throws Exception
      * @throws \Doctrine\DBAL\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
-    public function exportAction($config, $value = null): ResponseInterface
+    public function exportAction($config, $value = null)
     {
         $currentId = (int)$GLOBALS['_GET']['id'];
 
