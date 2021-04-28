@@ -104,10 +104,9 @@ trait ExportWithTsSettingsTrait
 
         $this->writeExcel($sheet, $result, $exportfields, $settings['table'], (bool)$settings['autofilter'], $hookArray);
 
-        $fileStream = new Stream(GeneralUtility::tempnam('xlsexport_', '.xls'));
+        $tempFile = GeneralUtility::tempnam('xlsexport_', '.xls');
         $objWriter = IOFactory::createWriter($this->spreadSheet, 'Xls');
-        $objWriter->save($fileStream);
-
-        return $fileStream;
+        $objWriter->save($tempFile);
+        return new Stream($tempFile);
     }
 }
