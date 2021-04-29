@@ -184,8 +184,7 @@ class XlsexportController extends ActionController
             'Cache-Control',
             'max-age=0'
         );
-        $this->response->setContent($file);
-        return $this->response->getContent();
+        return $file->getContents();
     }
 
     /**
