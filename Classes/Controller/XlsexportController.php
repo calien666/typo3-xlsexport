@@ -9,7 +9,6 @@ use Doctrine\DBAL\Driver\Exception;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
-use TYPO3\CMS\Extbase\Mvc\ResponseInterface;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
 /**
@@ -32,7 +31,7 @@ class XlsexportController extends ActionController
     /**
      * @var array
      */
-    protected $settings = [];
+    protected $selfSettings = [];
     /**
      * @var array
      */
@@ -74,8 +73,8 @@ class XlsexportController extends ActionController
                 $hookArray = $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['xlsexport']['alternateQueries'];
             }
 
-            if (is_array($this->settings['exports.'])) {
-                foreach ($this->settings['exports.'] as $key => $config) {
+            if (is_array($this->selfSettings['exports.'])) {
+                foreach ($this->selfSettings['exports.'] as $key => $config) {
                     $keyWithoutDot = str_replace('.', '', $key);
                     if (strlen($config['check']) > 20) {
                         $table = $config['table'];
@@ -110,7 +109,7 @@ class XlsexportController extends ActionController
             }
 
             $this->view->assign('id', $currentId);
-            $this->view->assign('settings', $this->settings);
+            $this->view->assign('settings', $this->selfSettings);
             $this->view->assign('datasets', $datasets);
             $additionalData = [];
             if ($currentId > 0) {
@@ -147,7 +146,7 @@ class XlsexportController extends ActionController
 
         $this->loadTSconfig($currentId);
 
-        $settings = $this->settings['exports.'][$config . '.'];
+        $settings = $this->selfSettings['exports.'][$config . '.'];
 
         if (!is_null($value)) {
             $settings['value'] = $value;
@@ -190,9 +189,9 @@ class XlsexportController extends ActionController
     /**
      * @return array
      */
-    public function getSettings()
+    public function getSelfSettings()
     {
-        return $this->settings;
+        return $this->selfSettings;
     }
 
     /**

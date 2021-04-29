@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace Calien\Xlsexport\Traits;
 
-use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Psr\Http\Message\StreamInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Http\Stream;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotException;
-use TYPO3\CMS\Extbase\SignalSlot\Exception\InvalidSlotReturnException;
 
 trait ExportWithTsSettingsTrait
 {
@@ -23,7 +20,7 @@ trait ExportWithTsSettingsTrait
      */
     protected $dbConnection = null;
 
-    protected $settings = [];
+    protected $selfSettings = [];
 
     protected $moduleName = 'tx_xlsexport';
 
@@ -35,10 +32,10 @@ trait ExportWithTsSettingsTrait
         $TSconfig = BackendUtility::getPagesTSconfig($currentId);
         $modTSconfig = $TSconfig['mod.'][$this->moduleName . '.'];
 
-        if (is_array($this->settings) && !empty($this->settings)) {
-            $this->settings = array_merge_recursive($this->settings, $this->modTSconfig['settings.']);
+        if (is_array($this->selfSettings) && !empty($this->selfSettings)) {
+            $this->selfSettings = array_merge_recursive($this->selfSettings, $this->modTSconfig['settings.']);
         } else {
-            $this->settings = $modTSconfig['settings.'];
+            $this->selfSettings = $modTSconfig['settings.'];
         }
     }
 
