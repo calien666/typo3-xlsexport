@@ -11,10 +11,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@master
-      - name: Set up PHP Version 7.4
+      - name: Set up PHP Version 7.3
         uses: shivammathur/setup-php@v2
         with:
-          php-version: 7.4
+          php-version: 7.3
       - name: Install Dependencies - move old composer.json
         run: |
           mv composer.json composer.json-orig
