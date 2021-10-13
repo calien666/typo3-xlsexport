@@ -173,7 +173,7 @@ class XlsexportController extends ActionController
         $this->response->setHeader(
             'Content-Disposition',
             sprintf(
-                'attachment;filename="%s_%s_%d.xls"',
+                'attachment;filename="%s_%s_%d.xlsx"',
                 date('Y-m-d-His'),
                 $settings['table'],
                 $currentId
