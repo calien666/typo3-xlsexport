@@ -1,0 +1,11 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Calien\Xlsexport\:
+    resource: '../Classes/*'
+
+  Calien\Xlsexport\Controller\XlsExportController:
+    tags: ['backend.controller']

@@ -1,0 +1,16 @@
+<html
+		xmlns:f="http://typo3.org/ns/TYPO3Fluid/Fluid/ViewHelpers"
+		xmlns="http://www.w3.org/1999/xhtml"
+		lang="en"
+		f:schemaLocation="https://fluidtypo3.org/schemas/fluid-master.xsd"
+		data-namespace-typo3-fluid="true"
+>
+<f:layout name="Default" />
+<f:section name="Content">
+	<p>{f:translate(key: 'export.message.done')}</p>
+	<p>{f:translate(key: 'export.message.file')} <f:link.external uri="{fileurl}">{fileurl}</f:link.external></p>
+	<f:if condition="{noarchive}">
+		<p>{f:translate(key: 'export.message.noarchive')}</p>
+	</f:if>
+</f:section>
+</html>

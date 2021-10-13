@@ -4,81 +4,112 @@ declare(strict_types=1);
 
 namespace Calien\Xlsexport\Traits;
 
+use Calien\Xlsexport\Export\Event\AddColumnsToSheetEvent;
+use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Row;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 trait ExportTrait
 {
+    protected EventDispatcherInterface $eventDispatcher;
     /**
      * @var array
      */
-    protected array $cols = [
+    public static array $cols = [
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'AA', 'AB', 'AC', 'AD', 'AE', 'AF', 'AG', 'AH', 'AI', 'AJ', 'AK', 'AL', 'AM', 'AN', 'AO', 'AP', 'AQ', 'AR', 'AS', 'AT', 'AU', 'AV', 'AW', 'AX', 'AY', 'AZ',
     ];
     /**
      * @var int
      */
-    protected int $rowCount = 0;
+    protected static int $rowCount = 0;
     /**
      * @var Spreadsheet|null
      */
-    protected ?Spreadsheet $spreadSheet = null;
+    protected static ?Spreadsheet $spreadSheet = null;
 
-    protected function loadSheet(): Worksheet
+    /**
+     * loadSheet
+     * @return Worksheet
+     * @throws Exception
+     */
+    protected static function loadSheet(): Worksheet
     {
-        $this->spreadSheet = new Spreadsheet();
-        $this->spreadSheet->getProperties()->setCreator("TYPO3 Export")
+        self::$spreadSheet = new Spreadsheet();
+        self::$spreadSheet->getProperties()->setCreator("TYPO3 Export")
             ->setLastModifiedBy("TYPO3 Export")
             ->setTitle("Export " . " Dokument")
             ->setSubject("Export " . " Dokument")
             ->setCreated(time())
             ->setDescription("Export " . " Dokument Quelle ");
 
-        $sheet = $this->spreadSheet->setActiveSheetIndex(0);
+        $sheet = self::$spreadSheet->setActiveSheetIndex(0);
 
-        $this->rowCount = 1;
+        self::$rowCount = 1;
 
         return $sheet;
     }
 
-    protected function writeHeader(Worksheet $sheet, array $headerFields)
+    /**
+     * writeHeader
+     * @param Worksheet $sheet
+     * @param array $headerFields
+     */
+    protected static function writeHeader(Worksheet $sheet, array $headerFields)
     {
         foreach ($headerFields as $field => $value) {
-            $sheet->setCellValue($this->cols[$field] . $this->rowCount, $value);
+            $sheet->setCellValue(self::$cols[$field] . self::$rowCount, $value);
         }
-        $this->rowCount++;
+        self::$rowCount++;
     }
 
-    protected function writeExcel(
+    /**
+     * writeExcel
+     * @param Worksheet $sheet
+     * @param array $dataset
+     * @param array $exportFields
+     * @param string $table
+     * @param bool $autoFilter
+     * @param array $hookArray @deprecated
+     */
+    protected static function writeExcel(
         Worksheet $sheet,
         array $dataset,
         array $exportFields,
         string $table = '',
         bool $autoFilter = false,
         array $hookArray = []
-    )
-    {
+    ) {
         $data = [];
         foreach ($dataset as $item) {
             $data[] = $item;
         }
 
         foreach ($data as $currentData) {
-            foreach ($exportFields as $field => $value) {
-                $sheet->setCellValue($this->cols[$field] . $this->rowCount, $currentData[$value]);
+            $colIndexer = 0;
+            foreach ($exportFields as $colIndexer => $value) {
+                $sheet->setCellValue(self::$cols[$colIndexer] . self::$rowCount, $currentData[$value]);
             }
-
+            $colIndexer++;
+            if (!empty($this)) {
+                $this->eventDispatcher->dispatch(new AddColumnsToSheetEvent($sheet, $colIndexer, self::$rowCount));
+            }
             if (array_key_exists($table, $hookArray) && is_array($hookArray[$table])) {
+                $colIndexer--;
                 foreach ($hookArray[$table] as $classObj) {
                     $hookObj = GeneralUtility::makeInstance($classObj);
                     if (method_exists($hookObj, 'addColumns')) {
-                        $hookObj->addColumns($sheet, $this, $field, $this->rowCount);
+                        trigger_error(
+                            'Usage of hooks inside XLS export is deprecated and will be removed in future versions. Use PSR-14 Event dispatching instead.',
+                            E_USER_DEPRECATED
+                        );
+                        $hookObj->addColumns($sheet, self::class, $colIndexer, self::$rowCount);
                     }
                 }
             }
-            $this->rowCount++;
+            self::$rowCount++;
         }
 
         if ($autoFilter) {
@@ -86,15 +117,21 @@ trait ExportTrait
         }
 
         for ($i = 0; $i < count($exportFields); $i++) {
-            $sheet->getColumnDimension($this->cols[$i])->setAutoSize(true);
+            $sheet->getColumnDimension(self::$cols[$i])->setAutoSize(true);
         }
 
         foreach ($sheet->getRowIterator() as $rowDimension) {
-            $this->_autofitRowHeight($rowDimension);
+            self::_autofitRowHeight($rowDimension);
         }
     }
 
-    private function _autofitRowHeight(Row &$row, $rowPadding = 5)
+    /**
+     * _autofitRowHeight
+     * @param Row $row
+     * @param int $rowPadding
+     * @return Worksheet
+     */
+    private static function _autofitRowHeight(Row $row, int $rowPadding = 5): Worksheet
     {
         $ws = $row->getWorksheet();
         $cellIterator = $row->getCellIterator();
@@ -105,10 +142,8 @@ trait ExportTrait
             $lines = explode("\n", (string)$cell->getValue());
             $lineCount = 0;
             // Ignore empty lines
-            foreach ($lines as $idx => &$line) {
+            foreach ($lines as &$ignored) {
                 $lineCount++;
-                if (0 !== strlen(trim($line, " \t\n\r\0\x0B"))) {
-                }
             }
             $maxCellLines = max($maxCellLines, $lineCount);
         }

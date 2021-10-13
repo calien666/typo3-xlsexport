@@ -3,7 +3,39 @@
 	<file source-language="en" datatype="plaintext" original="messages" date="2013-08-22T15:59:59Z" product-name="xlsexport">
 		<header/>
 		<body>
-		    
+		    <trans-unit id="export.message.done">
+		    	<source>The records have been exported.</source>
+		    </trans-unit>
+			<trans-unit id="export.message.file">
+				<source>The Excel file created is the following:</source>
+			</trans-unit>
+			<trans-unit id="export.message.noarchive">
+				<source>No archive folder was specified, so the records remain in the current folder.</source>
+			</trans-unit>
+			<trans-unit id="index.available">
+				<source>Available data</source>
+			</trans-unit>
+			<trans-unit id="index.records">
+				<source>Records</source>
+			</trans-unit>
+			<trans-unit id="index.export">
+				<source>Export</source>
+			</trans-unit>
+			<trans-unit id="index.selectPage">
+				<source>Please choose a page on the left</source>
+			</trans-unit>
+			<trans-unit id="plugin.title">
+				<source>Excel exporter</source>
+			</trans-unit>
+			<trans-unit id="index.heading.datatypes">
+				<source>Data types</source>
+			</trans-unit>
+			<trans-unit id="index.heading.actions">
+				<source>Actions</source>
+			</trans-unit>
+			<trans-unit id="index.count">
+				<source>Number</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

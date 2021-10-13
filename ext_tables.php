@@ -1,27 +1,18 @@
 <?php
 
-if (!defined('TYPO3_MODE')) {
-    die('Access denied.');
-}
-
-
-// Backend Modules
-\TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerModule(
-    'Calien.xlsexport',
-    'web',
-    'xlsexport',
-    '',
-    [
-        'Xlsexport' => 'index, export'
-    ],
-    [
-        'access' => 'user,group',
-        'icon'   => 'EXT:xlsexport/Resources/Public/Icons/xlsdown.svg',
-        'labels' => 'LLL:EXT:xlsexport/Resources/Private/Language/locallang_db.xlf',
-    ]
-);
-
-
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig('
-<INCLUDE_TYPOSCRIPT: source="FILE:EXT:xlsexport/Configuration/PageTSconfig/page.ts">
-');
+(function () {
+    \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addModule(
+        'web',
+        'xlsexport',
+        'bottom',
+        null,
+        [
+            'access' => 'user,group',
+            'name' => 'web_xlsexport',
+            'routeTarget' => \Calien\Xlsexport\Controller\XlsExportController::class . '::handleRequest',
+            'iconIdentifier' => 'mimetypes-excel',
+            'labels' => 'LLL:EXT:xlsexport/Resources/Private/Language/locallang_db.xlf',
+            'inheritNavigationComponentFromMainModule' => true,
+        ]
+    );
+})();

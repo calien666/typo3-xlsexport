@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Calien\Xlsexport\Traits;
 
+use Doctrine\DBAL\Driver\Exception;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Psr\Http\Message\StreamInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Http\Stream;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -16,13 +16,13 @@ trait ExportWithTsSettingsTrait
     use ExportTrait;
 
     /**
-     * @var ConnectionPool|null
+     * @var array
      */
-    protected $dbConnection = null;
-
-    protected $selfSettings = [];
-
-    protected $moduleName = 'tx_xlsexport';
+    protected array $selfSettings = [];
+    /**
+     * @var string
+     */
+    protected string $moduleName = 'web_xlsexport';
 
     /**
      * @param int $currentId
@@ -35,19 +35,21 @@ trait ExportWithTsSettingsTrait
         if (is_array($this->selfSettings) && !empty($this->selfSettings)) {
             $this->selfSettings = array_merge_recursive($this->selfSettings, $this->modTSconfig['settings.']);
         } else {
-            $this->selfSettings = $modTSconfig['settings.'];
+            $this->selfSettings = $modTSconfig['settings.'] ?? [];
         }
     }
 
     /**
+     * doExport
      * @param array $settings
      * @param int $currentId
      * @return StreamInterface
-     * @throws \Doctrine\DBAL\Driver\Exception
+     * @throws Exception
      * @throws \Doctrine\DBAL\Exception
+     * @throws \PhpOffice\PhpSpreadsheet\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
-    protected function doExport(array $settings, int $currentId) : StreamInterface
+    protected function doExport(array $settings, int $currentId): StreamInterface
     {
         $hookArray = [];
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['xlsexport']['alternateQueries'])) {
@@ -68,6 +70,10 @@ trait ExportWithTsSettingsTrait
             foreach ($hookArray[$settings['table']] as $classObj) {
                 $hookObj = GeneralUtility::makeInstance($classObj);
                 if (method_exists($hookObj, 'alternateExportQuery')) {
+                    trigger_error(
+                        'Usage of hooks inside XLS export is deprecated and will be removed in future versions. Use PSR-14 Event dispatching instead.',
+                        E_USER_DEPRECATED
+                    );
                     $exportQuery = $hookObj->alternateExportQuery($exportQuery, $this, $settings['value']);
                 }
             }
@@ -86,6 +92,10 @@ trait ExportWithTsSettingsTrait
             foreach ($hookArray[$settings['table']] as $classObj) {
                 $hookObj = GeneralUtility::makeInstance($classObj);
                 if (method_exists($hookObj, 'alternateHeaderLine')) {
+                    trigger_error(
+                        'Usage of hooks inside XLS export is deprecated and will be removed in future versions. Use PSR-14 Event dispatching instead.',
+                        E_USER_DEPRECATED
+                    );
                     $hookObj->alternateHeaderLine($sheet, $this, $exportfieldnames, $this->rowCount);
                     $headerManipulated = true;
                 }
@@ -101,8 +111,8 @@ trait ExportWithTsSettingsTrait
 
         $this->writeExcel($sheet, $result, $exportfields, $settings['table'], (bool)$settings['autofilter'], $hookArray);
 
-        $tempFile = GeneralUtility::tempnam('xlsexport_', '.xls');
-        $objWriter = IOFactory::createWriter($this->spreadSheet, 'Xls');
+        $tempFile = GeneralUtility::tempnam('xlsexport_', '.xlsx');
+        $objWriter = IOFactory::createWriter(self::$spreadSheet, 'Xlsx');
         $objWriter->save($tempFile);
         return new Stream($tempFile);
     }
