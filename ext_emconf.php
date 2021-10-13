@@ -12,7 +12,6 @@ $EM_CONF['xlsexporter'] = [
     'version' => '3.0.1',
     'constraints' => [
         'depends' => [
-            'fluid' => '11.5.0-11.5.99',
             'typo3' => '11.5.0-11.5.99',
         ],
         'conflicts' => [
