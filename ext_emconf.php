@@ -9,10 +9,10 @@ $EM_CONF['xlsexporter'] = [
     'author_company' => '',
     'state' => 'beta',
     'clearCacheOnLoad' => 0,
-    'version' => '3.0.0',
+    'version' => '3.0.1',
     'constraints' => [
         'depends' => [
-            'fluid' => '10.4.0-10.4.99',
+            'fluid' => '11.5.0-11.5.99',
             'typo3' => '11.5.0-11.5.99',
         ],
         'conflicts' => [
