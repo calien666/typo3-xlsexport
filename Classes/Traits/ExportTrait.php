@@ -43,7 +43,12 @@ trait ExportTrait
         return $sheet;
     }
 
-    protected function writeHeader(Worksheet $sheet, array $headerFields)
+    /**
+     * writeHeader
+     * @param Worksheet $sheet
+     * @param array $headerFields
+     */
+    protected function writeHeader(Worksheet $sheet, array $headerFields): void
     {
         foreach ($headerFields as $field => $value) {
             $sheet->setCellValue($this->cols[$field] . $this->rowCount, $value);
@@ -51,6 +56,15 @@ trait ExportTrait
         $this->rowCount++;
     }
 
+    /**
+     * writeExcel
+     * @param Worksheet $sheet
+     * @param array $dataset
+     * @param array $exportFields
+     * @param string $table
+     * @param bool $autoFilter
+     * @param array $hookArray
+     */
     protected function writeExcel(
         Worksheet $sheet,
         array $dataset,
@@ -58,7 +72,7 @@ trait ExportTrait
         string $table = '',
         bool $autoFilter = false,
         array $hookArray = []
-    )
+    ): void
     {
         $data = [];
         foreach ($dataset as $item) {
@@ -85,7 +99,7 @@ trait ExportTrait
             $sheet->setAutoFilter($sheet->calculateWorksheetDimension());
         }
 
-        for ($i = 0; $i < count($exportFields); $i++) {
+        for ($i = 0, $iMax = count($exportFields); $i < $iMax; $i++) {
             $sheet->getColumnDimension($this->cols[$i])->setAutoSize(true);
         }
 
@@ -94,7 +108,7 @@ trait ExportTrait
         }
     }
 
-    private function _autofitRowHeight(Row &$row, $rowPadding = 5)
+    private function _autofitRowHeight(Row $row, $rowPadding = 5)
     {
         $ws = $row->getWorksheet();
         $cellIterator = $row->getCellIterator();

@@ -75,7 +75,7 @@ trait ExportWithTsSettingsTrait
 
         $statement = sprintf($exportQuery, $currentId);
         $dbQuery = $this->dbConnection->getQueryBuilderForTable($settings['table'])->getConnection();
-        $result = $dbQuery->executeQuery($statement)->fetchAllAssociative();
+        $result = $dbQuery->executeQuery($statement)->fetchAll();
 
         $sheet = $this->loadSheet();
 

@@ -9,6 +9,7 @@ use Doctrine\DBAL\Driver\Exception;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Extbase\SignalSlot\Dispatcher;
 
 /**
@@ -45,7 +46,7 @@ class XlsexportController extends ActionController
     /**
      * XlsexportController constructor.
      */
-    public function initializeObject()
+    public function initializeObject(): void
     {
         $this->dbConnection = GeneralUtility::makeInstance(ConnectionPool::class);
     }
@@ -54,14 +55,13 @@ class XlsexportController extends ActionController
      * action index
      *
      * @return void
-     * @throws Exception
      * @throws \Doctrine\DBAL\Exception
      */
-    public function indexAction()
+    public function indexAction(): void
     {
         $currentId = $GLOBALS['_GET']['id'];
 
-        if ($currentId == 0 || is_null($currentId)) {
+        if ($currentId === 0 || is_null($currentId)) {
             $this->view->assign('id', $currentId);
         } else {
             $datasets = [];
@@ -90,10 +90,10 @@ class XlsexportController extends ActionController
 
                         $statement = sprintf($checkQuery, $currentId);
                         $dbQuery = $this->dbConnection->getQueryBuilderForTable($table)->getConnection();
-                        $result = $dbQuery->executeQuery($statement)->fetchAllAssociative();
+                        $result = $dbQuery->executeQuery($statement)->fetchAll();
 
                         // if all datasets from this page should be exported
-                        if (sizeof($result) == 1) {
+                        if (count($result) === 1) {
                             $count = $result[0];
                             $datasets[$keyWithoutDot]['count'] = $count['count(uid)'] ?? $count['count(*)'];
                         } else {
@@ -102,7 +102,7 @@ class XlsexportController extends ActionController
                             }
                         }
 
-                        $datasets[$keyWithoutDot]['label'] = $config['label'] ? $config['label'] : $table;
+                        $datasets[$keyWithoutDot]['label'] = $config['label'] ?: $table;
                         $datasets[$keyWithoutDot]['config'] = $keyWithoutDot;
                     }
                 }
@@ -140,7 +140,7 @@ class XlsexportController extends ActionController
      * @throws \Doctrine\DBAL\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
-    public function exportAction($config, $value = null): string
+    public function exportAction(string $config, $value = null): string
     {
         $currentId = (int)$GLOBALS['_GET']['id'];
 
@@ -189,15 +189,15 @@ class XlsexportController extends ActionController
     /**
      * @return array
      */
-    public function getSelfSettings()
+    public function getSelfSettings(): array
     {
         return $this->selfSettings;
     }
 
     /**
-     * @return mixed
+     * @return Request
      */
-    public function getRequest()
+    public function getRequest(): Request
     {
         return $this->request;
     }
@@ -205,7 +205,7 @@ class XlsexportController extends ActionController
     /**
      * @return array
      */
-    public function getCols()
+    public function getCols(): array
     {
         return $this->cols;
     }
