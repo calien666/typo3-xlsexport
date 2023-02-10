@@ -1,5 +1,14 @@
-<html xmlns:f="http://typo3.org/ns/TYPO3/Fluid/ViewHelpers" xmlns="http://www.w3.org/1999/xhtml" lang="en"
-      f:schemaLocation="https://fluidtypo3.org/schemas/fluid-master.xsd" data-namespace-typo3-fluid="true">
-<f:flashMessages />
-<f:render section="Content"/>
+<html
+    xmlns:f="http://typo3.org/ns/TYPO3/Fluid/ViewHelpers"
+    xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+    xmlns="http://www.w3.org/1999/xhtml"
+    lang="en"
+    f:schemaLocation="https://fluidtypo3.org/schemas/fluid-master.xsd" data-namespace-typo3-fluid="true">
+<be:moduleLayout name="Advanced Excel exporter" title="XLS Exporter">
+    <f:flashMessages />
+    <f:be.pageRenderer pageTitle="XLS Exporter" />
+    <f:render section="Buttons" optional="true"/>
+    <f:render section="Headline" optional="true"/>
+    <f:render section="Content"/>
+</be:moduleLayout>
 </html>

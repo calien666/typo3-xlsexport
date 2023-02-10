@@ -9,7 +9,7 @@ $EM_CONF['xlsexporter'] = [
     'author_company' => '',
     'state' => 'beta',
     'clearCacheOnLoad' => 0,
-    'version' => '3.0.5',
+    'version' => '3.1.0',
     'constraints' => [
         'depends' => [
             'typo3' => '11.5.0-11.5.99',
@@ -31,6 +31,6 @@ $EM_CONF['xlsexporter'] = [
             'MyCLabs\\Enum\\' => 'vendor/myclabs/php-enum/src',
             'Matrix\\' => 'vendor/markbaker/matrix/classes/src',
             'Complex\\' => 'vendor/markbaker/complex/classes/src',
-        ]
+        ],
     ],
 ];

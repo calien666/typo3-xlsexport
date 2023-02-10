@@ -9,12 +9,11 @@ use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Row;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 trait ExportTrait
 {
-    protected EventDispatcherInterface $eventDispatcher;
+    protected $eventDispatcher;
     /**
      * @var array
      */
@@ -38,12 +37,12 @@ trait ExportTrait
     protected static function loadSheet(): Worksheet
     {
         self::$spreadSheet = new Spreadsheet();
-        self::$spreadSheet->getProperties()->setCreator("TYPO3 Export")
-            ->setLastModifiedBy("TYPO3 Export")
-            ->setTitle("Export " . " Dokument")
-            ->setSubject("Export " . " Dokument")
+        self::$spreadSheet->getProperties()->setCreator('TYPO3 Export')
+            ->setLastModifiedBy('TYPO3 Export')
+            ->setTitle('Export ' . ' Dokument')
+            ->setSubject('Export ' . ' Dokument')
             ->setCreated(time())
-            ->setDescription("Export " . " Dokument Quelle ");
+            ->setDescription('Export ' . ' Dokument Quelle ');
 
         $sheet = self::$spreadSheet->setActiveSheetIndex(0);
 

@@ -59,6 +59,9 @@ tests/_output/*
 
 /var
 /vendor
+/bin
+/public
 /config
 
-/.ddev
+/.Build
+.php-cs-fixer.cache

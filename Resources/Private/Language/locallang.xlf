@@ -3,9 +3,9 @@
 	<file source-language="en" datatype="plaintext" original="messages" date="2013-08-22T15:59:59Z" product-name="xlsexport">
 		<header/>
 		<body>
-		    <trans-unit id="export.message.done">
-		    	<source>The records have been exported.</source>
-		    </trans-unit>
+			<trans-unit id="export.message.done">
+				<source>The records have been exported.</source>
+			</trans-unit>
 			<trans-unit id="export.message.file">
 				<source>The Excel file created is the following:</source>
 			</trans-unit>
@@ -35,6 +35,17 @@
 			</trans-unit>
 			<trans-unit id="index.count">
 				<source>Number</source>
+			</trans-unit>
+
+			<trans-unit id="noconfig.title">
+				<source>No configuration set</source>
+			</trans-unit>
+			<trans-unit id="noconfig.body">
+				<source><![CDATA[
+				You have no XLS Exporter configuration. Please read the manual at
+				<a href="https://github.com/calien666/typo3-xlsexport/blob/main/README.md" target="_blank">github</a>
+]]>
+					</source>
 			</trans-unit>
 		</body>
 	</file>

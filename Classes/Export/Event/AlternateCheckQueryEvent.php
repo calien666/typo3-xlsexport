@@ -61,7 +61,7 @@ final class AlternateCheckQueryEvent implements StoppableEventInterface
     {
         $allManipulated = true;
         foreach ($this->exportConfiguration as $config) {
-            if (!$config['manipulated']) {
+            if (!array_key_exists('manipulated', $config) || !$config['manipulated']) {
                 $allManipulated = false;
             }
         }

@@ -22,7 +22,11 @@ trait ExportWithTsSettingsTrait
     /**
      * @var string
      */
-    protected string $moduleName = 'web_xlsexport';
+    protected string $moduleName = 'tx_xlsexport';
+    /**
+     * @var array
+     */
+    protected array $modTSconfig;
 
     /**
      * @param int $currentId
@@ -30,12 +34,10 @@ trait ExportWithTsSettingsTrait
     protected function loadTSconfig(int $currentId)
     {
         $TSconfig = BackendUtility::getPagesTSconfig($currentId);
-        $modTSconfig = $TSconfig['mod.'][$this->moduleName . '.'];
-
-        if (is_array($this->selfSettings) && !empty($this->selfSettings)) {
+        $moduleConfigArrayName = sprintf('%s.', $this->moduleName);
+        if (array_key_exists($moduleConfigArrayName, $TSconfig['mod.'])) {
+            $this->modTSconfig = $TSconfig['mod.'][$moduleConfigArrayName];
             $this->selfSettings = array_merge_recursive($this->selfSettings, $this->modTSconfig['settings.']);
-        } else {
-            $this->selfSettings = $modTSconfig['settings.'] ?? [];
         }
     }
 
@@ -51,8 +53,13 @@ trait ExportWithTsSettingsTrait
      */
     protected function doExport(array $settings, int $currentId): StreamInterface
     {
+        $this->normalizeSettings($settings);
         $hookArray = [];
-        if (is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['xlsexport']['alternateQueries'])) {
+        if (
+            array_key_exists('xlsexport', $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS'])
+            && array_key_exists('alternateQueries', $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['xlsexport'])
+            && is_array($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['xlsexport']['alternateQueries'])
+        ) {
             $hookArray = $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['xlsexport']['alternateQueries'];
         }
 
@@ -74,7 +81,7 @@ trait ExportWithTsSettingsTrait
                         'Usage of hooks inside XLS export is deprecated and will be removed in future versions. Use PSR-14 Event dispatching instead.',
                         E_USER_DEPRECATED
                     );
-                    $exportQuery = $hookObj->alternateExportQuery($exportQuery, $this, $settings['value']);
+                    $exportQuery = $hookObj->alternateExportQuery($exportQuery, $this, '');
                 }
             }
         }
@@ -115,5 +122,12 @@ trait ExportWithTsSettingsTrait
         $objWriter = IOFactory::createWriter(self::$spreadSheet, 'Xlsx');
         $objWriter->save($tempFile);
         return new Stream($tempFile);
+    }
+
+    private function normalizeSettings(array &$settings): void
+    {
+        if (!array_key_exists('autofilter', $settings)) {
+            $settings['autofilter'] = false;
+        }
     }
 }

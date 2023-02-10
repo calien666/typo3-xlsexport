@@ -1,13 +1,13 @@
 module.tx_xlsexport {
-	view {
-		layoutRootPaths {
-			20 = EXT:xlsexport/Resources/Private/Layouts/
-		}
-		partialRootPaths {
-			20 = EXT:xlsexport/Resources/Private/Partials/
-		}
-		templateRootPaths {
-			20 = EXT:xlsexport/Resources/Private/Templates/
-		}
-	}
+  view {
+    layoutRootPaths {
+      20 = EXT:xlsexport/Resources/Private/Layouts/
+    }
+    partialRootPaths {
+      20 = EXT:xlsexport/Resources/Private/Partials/
+    }
+    templateRootPaths {
+      20 = EXT:xlsexport/Resources/Private/Templates/
+    }
+  }
 }

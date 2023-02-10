@@ -12,5 +12,4 @@ namespace Calien\Xlsexport\Export\Event;
 
 final class AlternateHeaderLineEvent
 {
-
 }
