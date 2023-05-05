@@ -1,6 +1,6 @@
 <?php
 
-$EM_CONF['xlsexporter'] = [
+$EM_CONF[$_EXTKEY] = [
     'title' => 'Calien - XLS Exporter',
     'description' => 'Excel exporter, fully configurable for every table',
     'category' => 'module',
@@ -9,7 +9,7 @@ $EM_CONF['xlsexporter'] = [
     'author_company' => '',
     'state' => 'beta',
     'clearCacheOnLoad' => 0,
-    'version' => '3.1.0',
+    'version' => '3.1.1',
     'constraints' => [
         'depends' => [
             'typo3' => '11.5.0-11.5.99',
