@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Calien\Xlsexport\Controller;
 
 use Calien\Xlsexport\Export\Event\AlternateCheckQueryEvent;
+use Calien\Xlsexport\Export\Event\AlternateExportQueryEvent;
 use Calien\Xlsexport\Traits\ExportWithTsSettingsTrait;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\Driver\Exception;
@@ -88,6 +89,10 @@ class XlsExportController extends ActionController
         $this->loadTSconfig($this->pageId);
 
         $settings = $this->selfSettings['exports.'][$config . '.'];
+
+        $event = $this->eventDispatcher->dispatch(new AlternateExportQueryEvent($settings, $config));
+
+        $settings = $event->getManipulatedSettings();
 
         $file = $this->doExport($settings, $this->pageId);
 
