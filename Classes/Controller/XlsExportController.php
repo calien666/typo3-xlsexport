@@ -119,7 +119,7 @@ class XlsExportController extends ActionController
             ->withBody($file);
     }
 
-    private function buildDataArrayForListView(): void
+    protected function buildDataArrayForListView(): void
     {
         $datasets = [];
         $event = $this->eventDispatcher->dispatch(new AlternateCheckQueryEvent($this->selfSettings['exports.']));
@@ -165,7 +165,7 @@ class XlsExportController extends ActionController
         $this->view->assign('datasets', $datasets);
     }
 
-    private function addAdditionalData(): void
+    protected function addAdditionalData(): void
     {
         $additionalData = [];
         if (array_key_exists('additionalData', $this->hooks)) {
