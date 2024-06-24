@@ -8,13 +8,10 @@ use Psr\EventDispatcher\StoppableEventInterface;
 
 final class AlternateExportQueryEvent implements StoppableEventInterface
 {
-    /**
-     * @var string
-     */
     protected string $exportKey = '';
 
     /**
-     * @var array
+     * @var array <string, mixed>
      */
     protected array $exportConfiguration = [];
 
@@ -41,7 +38,7 @@ final class AlternateExportQueryEvent implements StoppableEventInterface
         return $exportKey === $this->exportKey;
     }
 
-    public function alternateExportQuery(string $export)
+    public function alternateExportQuery(string $export): void
     {
         if ($this->exportConfiguration['export'] && !$this->exportConfiguration['manipulated']) {
             $this->exportConfiguration['export'] = $export;
