@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext" original="messages" date="2024-06-25T11:21:35Z" product-name="xlsexport">
+		<header/>
+		<body>
+			<trans-unit id="export.message.done" resname="export.message.done">
+				<source>The records have been exported.</source>
+				<target>Die Datensätze wurden exportiert</target>
+			</trans-unit>
+			<trans-unit id="export.message.file" resname="export.message.file">
+				<source>The Excel file created is the following:</source>
+				<target>Die erstellte Excel Datei ist:</target>
+			</trans-unit>
+			<trans-unit id="export.message.noarchive" resname="export.message.noarchive">
+				<source>No archive folder was specified, so the records remain in the current folder.</source>
+				<target>Es wurde kein Archiv Ordner festgelegt. Die Datensätze bleiben im aktuellen Ordner.</target>
+			</trans-unit>
+			<trans-unit id="index.available" resname="index.available">
+				<source>Available data</source>
+				<target>Verfügbare Daten</target>
+			</trans-unit>
+			<trans-unit id="index.records" resname="index.records">
+				<source>Records</source>
+				<target>Datensätze</target>
+			</trans-unit>
+			<trans-unit id="index.export" resname="index.export">
+				<source>Export</source>
+				<target>Export</target>
+			</trans-unit>
+			<trans-unit id="index.selectPage" resname="index.selectPage">
+				<source>Please choose a page on the left</source>
+				<target>Bitte links eine Seite wählen</target>
+			</trans-unit>
+			<trans-unit id="plugin.title" resname="plugin.title">
+				<source>Excel exporter</source>
+				<target>Excel Exporter</target>
+			</trans-unit>
+			<trans-unit id="index.heading.datatypes" resname="index.heading.datatypes">
+				<source>Data types</source>
+				<target>Daten Typen</target>
+			</trans-unit>
+			<trans-unit id="index.heading.actions" resname="index.heading.actions">
+				<source>Actions</source>
+				<target>Aktionen</target>
+			</trans-unit>
+			<trans-unit id="index.count" resname="index.count">
+				<source>Amount</source>
+				<target>Anzahl</target>
+			</trans-unit>
+
+			<trans-unit id="noconfig.title" resname="noconfig.title">
+				<source>No configuration set</source>
+				<target>Keine Konfiguration vorhanden</target>
+			</trans-unit>
+			<trans-unit id="noconfig.body" resname="noconfig.body">
+				<source><![CDATA[
+				You have no XLS Exporter configuration. Please read the manual at
+				<a href="https://github.com/calien666/typo3-xlsexport/blob/main/README.md" target="_blank">github</a>
+]]>
+					</source>
+				<target><![CDATA[
+				Keine XLS Exporter Konfiguration gefunden. Bitte die Anleitung auf
+				<a href="https://github.com/calien666/typo3-xlsexport/blob/main/README.md" target="_blank">github</a> lesen
+]]>
+					</target>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

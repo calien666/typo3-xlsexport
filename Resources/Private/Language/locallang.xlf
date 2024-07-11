@@ -34,7 +34,7 @@
 				<source>Actions</source>
 			</trans-unit>
 			<trans-unit id="index.count">
-				<source>Number</source>
+				<source>Amount</source>
 			</trans-unit>
 
 			<trans-unit id="noconfig.title">
