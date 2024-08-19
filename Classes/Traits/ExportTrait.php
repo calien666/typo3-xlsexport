@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Calien\Xlsexport\Traits;
 
 use Calien\Xlsexport\Export\Event\AddColumnsToSheetEvent;
+use Calien\Xlsexport\Export\Event\ManipulateCellDataEvent;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Row;
@@ -89,7 +90,11 @@ trait ExportTrait
         foreach ($data as $currentData) {
             $colIndexer = 0;
             foreach ($exportFields as $colIndexer => $value) {
-                $sheet->setCellValue(self::$cols[$colIndexer] . self::$rowCount, $currentData[$value]);
+                $manipulateCellData = new ManipulateCellDataEvent($value, $currentData, $currentData[$value]);
+                if (!empty($this)) {
+                    $this->eventDispatcher->dispatch($manipulateCellData);
+                }
+                $sheet->setCellValue(self::$cols[$colIndexer] . self::$rowCount, $manipulateCellData->getValue());
             }
             $colIndexer++;
             if (!empty($this)) {
