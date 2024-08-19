@@ -8,8 +8,7 @@ $EM_CONF[$_EXTKEY] = [
     'author_email' => 'typo3@calien.de',
     'author_company' => '',
     'state' => 'beta',
-    'clearCacheOnLoad' => 0,
-    'version' => '3.1.6',
+    'version' => '3.1.7',
     'constraints' => [
         'depends' => [
             'typo3' => '11.5.0-11.5.99',
@@ -22,15 +21,15 @@ $EM_CONF[$_EXTKEY] = [
     'autoload' => [
         'psr-4' => [
             'Calien\\Xlsexport\\' => 'Classes',
-            'ZipStream\\' => 'vendor/maennchen/zipstream-php/src',
-            'Symfony\\Polyfill\\Mbstring\\' => 'vendor/symfony/polyfill-mbstring',
-            'Psr\\SimpleCache\\' => 'vendor/psr/simple-cache/src',
-            'Psr\\Http\\Message\\' => 'vendor/psr/http-message/src',
-            'Psr\\Http\\Client\\' => 'vendor/psr/http-client/src',
-            'PhpOffice\\PhpSpreadsheet\\' => 'vendor/phpoffice/phpspreadsheet/src',
-            'MyCLabs\\Enum\\' => 'vendor/myclabs/php-enum/src',
-            'Matrix\\' => 'vendor/markbaker/matrix/classes/src',
-            'Complex\\' => 'vendor/markbaker/complex/classes/src',
+            'ZipStream\\' => 'Resources/Private/Php/maennchen/zipstream-php/src',
+            'Symfony\\Polyfill\\Mbstring\\' => 'Resources/Private/Php/symfony/polyfill-mbstring',
+            'Psr\\SimpleCache\\' => 'Resources/Private/Php/psr/simple-cache/src',
+            'Psr\\Http\\Message\\' => 'Resources/Private/Php/psr/http-message/src',
+            'Psr\\Http\\Client\\' => 'Resources/Private/Php/psr/http-client/src',
+            'PhpOffice\\PhpSpreadsheet\\' => 'Resources/Private/Php/phpoffice/phpspreadsheet/src',
+            'MyCLabs\\Enum\\' => 'Resources/Private/Php/myclabs/php-enum/src',
+            'Matrix\\' => 'Resources/Private/Php/markbaker/matrix/classes/src',
+            'Complex\\' => 'Resources/Private/Php/markbaker/complex/classes/src',
         ],
     ],
 ];
