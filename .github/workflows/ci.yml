@@ -17,7 +17,7 @@ jobs:
 
       - name: Check tag
         run: |
-          if ! [[ ${{ github.ref }} =~ ^refs/tags/[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$ ]]; then
+          if ! [[ ${{ github.ref }} =~ ^refs/tags/v?[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$ ]]; then
             exit 1
           fi
 
@@ -46,7 +46,7 @@ jobs:
       - name: Install Dependencies - move old composer.json
         run: |
           mv composer.json composer.json-orig
-          composer require phpoffice/phpspreadsheet ^1.10 --ignore-platform-reqs --no-progress
+          composer require phpoffice/phpspreadsheet ^1.29 --ignore-platform-reqs --no-progress
           mv composer.json-orig composer.json
           rm composer.lock
 
