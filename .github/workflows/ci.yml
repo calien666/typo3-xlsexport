@@ -46,8 +46,9 @@ jobs:
       - name: Install Dependencies - move old composer.json
         run: |
           mv composer.json composer.json-orig
+          composer require phpoffice/phpspreadsheet ^1.29 --no-update
           composer config vendor-dir Resources/Private/Php
-          composer require phpoffice/phpspreadsheet ^1.29 --ignore-platform-reqs --no-progress
+          composer install --ignore-platform-reqs --no-progress
           mv composer.json-orig composer.json
           rm composer.lock
 
