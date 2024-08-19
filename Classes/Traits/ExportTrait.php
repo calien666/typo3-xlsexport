@@ -74,7 +74,7 @@ trait ExportTrait
      * @param bool $autoFilter
      * @param array $hookArray @deprecated
      */
-    protected static function writeExcel(
+    protected function writeExcel(
         Worksheet $sheet,
         array $dataset,
         array $exportFields,
@@ -91,13 +91,13 @@ trait ExportTrait
             $colIndexer = 0;
             foreach ($exportFields as $colIndexer => $value) {
                 $manipulateCellData = new ManipulateCellDataEvent($value, $currentData, $currentData[$value]);
-                if (!empty($this)) {
+                if (!empty($this->eventDispatcher)) {
                     $this->eventDispatcher->dispatch($manipulateCellData);
                 }
                 $sheet->setCellValue(self::$cols[$colIndexer] . self::$rowCount, $manipulateCellData->getValue());
             }
             $colIndexer++;
-            if (!empty($this)) {
+            if (!empty($this->eventDispatcher)) {
                 $this->eventDispatcher->dispatch(new AddColumnsToSheetEvent($sheet, $colIndexer, self::$rowCount));
             }
             if (array_key_exists($table, $hookArray) && is_array($hookArray[$table])) {
