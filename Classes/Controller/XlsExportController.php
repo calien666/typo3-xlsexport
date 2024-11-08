@@ -54,7 +54,7 @@ class XlsExportController extends ActionController
      */
     public function indexAction(): ResponseInterface
     {
-        $this->pageId = (int)GeneralUtility::_GP('id') ?? 0;
+        $this->pageId = (int)($this->request->getParsedBody()['id'] ?? $this->request->getQueryParams()['id'] ?? null) ?? 0;
         $this->view->assign('id', $this->pageId);
         if ($this->pageId > 0) {
             $this->loadTSconfig($this->pageId);
@@ -104,9 +104,7 @@ class XlsExportController extends ActionController
             $dbQuery->update($settings['table'])
                 ->where(
                     $dbQuery->expr()->eq('pid', $dbQuery->createNamedParameter($this->pageId, \PDO::PARAM_INT))
-                )
-                ->set('pid', $dbQuery->createNamedParameter($archive, \PDO::PARAM_INT))
-                ->execute();
+                )->set('pid', $dbQuery->createNamedParameter($archive, \PDO::PARAM_INT))->executeStatement();
         }
 
         return (new Response())

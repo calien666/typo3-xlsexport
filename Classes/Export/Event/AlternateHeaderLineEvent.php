@@ -10,6 +10,4 @@ declare(strict_types=1);
 
 namespace Calien\Xlsexport\Export\Event;
 
-final class AlternateHeaderLineEvent
-{
-}
+final class AlternateHeaderLineEvent {}

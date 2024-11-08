@@ -48,7 +48,7 @@ final class AlternateCheckQueryEvent implements StoppableEventInterface
         return in_array($exportKey, $this->exportKeys);
     }
 
-    public function alternateCheckQuery(string $exportKey, string $check)
+    public function alternateCheckQuery(string $exportKey, string $check): void
     {
         $exportConfig = sprintf('%s.', $exportKey);
         if ($this->exportConfiguration[$exportConfig]['check'] && !$this->exportConfiguration[$exportConfig]['manipulated']) {
