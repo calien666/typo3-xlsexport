@@ -23,10 +23,10 @@
     "typo3/cms-core": "^12.4 || ^13.4"
   },
   "require-dev": {
-    "armin/editorconfig-cli": "^1.5",
     "friendsofphp/php-cs-fixer": "^3.0",
+    "helhum/typo3-console": "^8.2",
     "phpstan/phpstan": "^1.3",
-    "ssch/typo3-rector": "^2.11",
+    "saschaegerer/phpstan-typo3": "^1.10",
     "typo3/testing-framework": "^8.0"
   },
   "extra": {
@@ -40,6 +40,11 @@
       "Calien\\Xlsexport\\": "Classes/"
     }
   },
+	"autoload-dev": {
+		"psr-4": {
+			"Calien\\Xlsexport\\Tests\\": "Tests/"
+		}
+	},
   "config": {
     "allow-plugins": {
       "typo3/cms-composer-installers": true,

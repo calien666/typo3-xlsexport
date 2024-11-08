@@ -31,9 +31,11 @@
                 </th>
             </tr>
             </thead>
-            <f:for each="{datasets}" as="dataset">
+            <f:for each="{datasets}" as="dataset" key="configuration">
                 <tr>
-                    <td class="col-title col-responsive nowrap">{dataset.label}</td>
+                    <td class="col-title col-responsive nowrap">
+                        <f:translate key="{dataset.label}" default="{dataset.label}" />
+                    </td>
                     <td class="nowrap">
                         {dataset.count} {f:translate(key: 'index.records', extensionName: 'xlsexport')}
                     </td>
@@ -43,14 +45,14 @@
                         </div>
                         <f:if condition="{dataset.count} > 0">
                             <f:then>
-                                <f:link.action
-                                    action="export"
+                                <f:be.link
+                                    route="web_xlsexport.export"
                                     class="btn btn-default"
-                                    arguments="{config: '{dataset.config}', id: '{id}'}"
+                                    parameters="{configuration: '{configuration}', id: '{pageId}'}"
                                 >
                                     <core:icon identifier="actions-download"/>
                                     {f:translate(key: 'index.export', extensionName: 'xlsexport')}
-                                </f:link.action>
+                                </f:be.link>
                             </f:then>
                             <f:else>
                                 <span class="btn btn-default disabled">

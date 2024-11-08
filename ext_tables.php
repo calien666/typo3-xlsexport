@@ -1,4 +1,4 @@
 <?php
 
-(static function () {
+(static function (): void {
 })();

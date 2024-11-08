@@ -1,18 +1,16 @@
+templates.typo3/cms-backend {
+  1731094874154 = calien/xlsexport:Resources/Private
+}
 mod.web_xlsexport {
   content {
-    # could be LLL:EXT:my_ext/Resources/Private/Language/locallang.xlf:my.label, too
     label = Contents
     table = tt_content
-    alias = content
-    # one of the possible formats from Phpspreadsheet Writers
-    format = xlsx
     select {
       10 = tt_content.uid
       20 = header
       30 = CType
       40 = title
     }
-    # one single field, or just *
     count = *
     fieldLabels {
       10 = ID
@@ -23,19 +21,15 @@ mod.web_xlsexport {
     where {
       10 {
         fieldName = tt_content.pid
-        # CURRENT_ID will be automatically replaced by the current selected page id
         parameter = ###CURRENT_ID###
         expressionType = eq
-        # one of Connection::PARAM_*
         type = Connection::PARAM_INT
       }
     }
     join {
       10 {
-        # Use Alias here
-        from = content
+        from = tt_content
         to = pages
-        toAlias = p
         where {
           10 {
             fieldName = tt_content.pid

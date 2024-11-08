@@ -6,6 +6,3 @@ services:
 
   Calien\Xlsexport\:
     resource: '../Classes/*'
-
-  Calien\Xlsexport\Controller\XlsExportController:
-    tags: ['backend.controller']

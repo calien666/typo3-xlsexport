@@ -27,7 +27,7 @@ class NodeVisitor extends NodeVisitorAbstract
     }
 }
 
-$parser = (new ParserFactory())->createForVersion(\PhpParser\PhpVersion::getHostVersion());
+$parser = (new ParserFactory())->createForNewestSupportedVersion();
 
 $finder = new Symfony\Component\Finder\Finder();
 $finder->files()
