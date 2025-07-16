@@ -1,0 +1,66 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Expression on left side of \\?\\? is not nullable\\.$#"
+			count: 1
+			path: ../../Classes/Controller/XlsExportController.php
+
+		-
+			message: "#^Property Calien\\\\Xlsexport\\\\Controller\\\\XlsExportController\\:\\:\\$modTSconfig \\(array\\<non\\-empty\\-string, mixed\\>\\) does not accept array\\<int\\|string, mixed\\>\\.$#"
+			count: 1
+			path: ../../Classes/Controller/XlsExportController.php
+
+		-
+			message: "#^Instanceof between string and Doctrine\\\\DBAL\\\\ParameterType will always evaluate to false\\.$#"
+			count: 1
+			path: ../../Classes/Service/DatabaseQueryTypoScriptParser.php
+
+		-
+			message: "#^Parameter \\#1 \\$objectOrClass of class ReflectionClass constructor expects class\\-string\\<T of object\\>\\|T of object, string given\\.$#"
+			count: 1
+			path: ../../Classes/Service/DatabaseQueryTypoScriptParser.php
+
+		-
+			message: "#^Parameter \\#2 \\$configuration of method Calien\\\\Xlsexport\\\\Service\\\\DatabaseQueryTypoScriptParser\\:\\:generateValue\\(\\) expects array\\{fieldName\\: string, parameter\\: array\\<float\\|int\\|string\\>\\|float\\|int\\|string, type\\: string, expressionType\\: string, isColumn\\?\\: bool\\}, array\\{fieldName\\: string, parameter\\: array\\<float\\|int\\|string\\>\\|float\\|int\\|string, type\\: 0\\|1\\|2\\|3\\|4\\|5\\|101\\|102\\|117, expressionType\\: string, isColumn\\?\\: bool\\} given\\.$#"
+			count: 6
+			path: ../../Classes/Service/DatabaseQueryTypoScriptParser.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between '0'\\|bool and '1' will always evaluate to false\\.$#"
+			count: 1
+			path: ../../Classes/Service/DatabaseQueryTypoScriptParser.php
+
+		-
+			message: "#^Call to an undefined method TYPO3\\\\CMS\\\\Core\\\\Database\\\\Query\\\\QueryBuilder\\:\\:getFrom\\(\\)\\.$#"
+			count: 2
+			path: ../../Tests/Functional/Service/DatabaseQueryTypoScriptParserTest.php
+
+		-
+			message: "#^Call to an undefined method TYPO3\\\\CMS\\\\Core\\\\Database\\\\Query\\\\QueryBuilder\\:\\:getSelect\\(\\)\\.$#"
+			count: 4
+			path: ../../Tests/Functional/Service/DatabaseQueryTypoScriptParserTest.php
+
+		-
+			message: "#^Call to an undefined method TYPO3\\\\CMS\\\\Core\\\\Database\\\\Query\\\\QueryBuilder\\:\\:getWhere\\(\\)\\.$#"
+			count: 1
+			path: ../../Tests/Functional/Service/DatabaseQueryTypoScriptParserTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$configuration of method Calien\\\\Xlsexport\\\\Service\\\\DatabaseQueryTypoScriptParser\\:\\:buildQueryBuilderFromArray\\(\\) expects array\\{table\\: non\\-empty\\-string, alias\\?\\: non\\-empty\\-string, select\\: array\\<non\\-empty\\-string\\>, count\\?\\: non\\-empty\\-string, selectLiteral\\?\\: array\\<non\\-empty\\-string\\>, where\\: array\\<array\\{fieldName\\: string, parameter\\: array\\<float\\|int\\|string\\>\\|float\\|int\\|string, type\\: 0\\|1\\|2\\|3\\|4\\|5\\|101\\|102\\|117, expressionType\\: string, isColumn\\?\\: bool\\}\\>, join\\?\\: array\\<array\\{from\\: non\\-empty\\-string, to\\: non\\-empty\\-string, toAlias\\?\\: non\\-empty\\-string, where\\: array\\<array\\{fieldName\\: string, parameter\\: array\\<float\\|int\\|string\\>\\|float\\|int\\|string, type\\: 0\\|1\\|2\\|3\\|4\\|5\\|101\\|102\\|117, expressionType\\: string, isColumn\\?\\: bool\\}\\>\\}\\>, leftJoin\\?\\: array\\<array\\{from\\: non\\-empty\\-string, to\\: non\\-empty\\-string, toAlias\\?\\: non\\-empty\\-string, where\\: array\\<array\\{fieldName\\: string, parameter\\: array\\<float\\|int\\|string\\>\\|float\\|int\\|string, type\\: 0\\|1\\|2\\|3\\|4\\|5\\|101\\|102\\|117, expressionType\\: string, isColumn\\?\\: bool\\}\\>\\}\\>, \\.\\.\\.\\}, array\\{table\\: 'pages', select\\: array\\{'uid', 'pid', 'title'\\}, where\\: array\\{array\\{fieldName\\: 'pid', parameter\\: 1, type\\: 'Connection\\:\\:PARAM…', expressionType\\: 'eq'\\}\\}, join\\: array\\{array\\{from\\: 'pages', to\\: 'tt_content', where\\: array\\{array\\{fieldName\\: 'pages\\.uid', parameter\\: 'tt_content\\.pid', type\\: 'Connection\\:\\:PARAM…', expressionType\\: 'eq', isColumn\\: true\\}\\}\\}\\}\\} given\\.$#"
+			count: 1
+			path: ../../Tests/Functional/Service/DatabaseQueryTypoScriptParserTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$configuration of method Calien\\\\Xlsexport\\\\Service\\\\DatabaseQueryTypoScriptParser\\:\\:buildQueryBuilderFromArray\\(\\) expects array\\{table\\: non\\-empty\\-string, alias\\?\\: non\\-empty\\-string, select\\: array\\<non\\-empty\\-string\\>, count\\?\\: non\\-empty\\-string, selectLiteral\\?\\: array\\<non\\-empty\\-string\\>, where\\: array\\<array\\{fieldName\\: string, parameter\\: array\\<float\\|int\\|string\\>\\|float\\|int\\|string, type\\: 0\\|1\\|2\\|3\\|4\\|5\\|101\\|102\\|117, expressionType\\: string, isColumn\\?\\: bool\\}\\>, join\\?\\: array\\<array\\{from\\: non\\-empty\\-string, to\\: non\\-empty\\-string, toAlias\\?\\: non\\-empty\\-string, where\\: array\\<array\\{fieldName\\: string, parameter\\: array\\<float\\|int\\|string\\>\\|float\\|int\\|string, type\\: 0\\|1\\|2\\|3\\|4\\|5\\|101\\|102\\|117, expressionType\\: string, isColumn\\?\\: bool\\}\\>\\}\\>, leftJoin\\?\\: array\\<array\\{from\\: non\\-empty\\-string, to\\: non\\-empty\\-string, toAlias\\?\\: non\\-empty\\-string, where\\: array\\<array\\{fieldName\\: string, parameter\\: array\\<float\\|int\\|string\\>\\|float\\|int\\|string, type\\: 0\\|1\\|2\\|3\\|4\\|5\\|101\\|102\\|117, expressionType\\: string, isColumn\\?\\: bool\\}\\>\\}\\>, \\.\\.\\.\\}, array\\{table\\: 'pages', select\\: array\\{'uid', 'pid', 'title'\\}, where\\: array\\{array\\{fieldName\\: 'pid', parameter\\: 1, type\\: 'Connection\\:\\:PARAM…', expressionType\\: 'eq'\\}\\}\\} given\\.$#"
+			count: 1
+			path: ../../Tests/Functional/Service/DatabaseQueryTypoScriptParserTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$configuration of method Calien\\\\Xlsexport\\\\Service\\\\DatabaseQueryTypoScriptParser\\:\\:buildQueryBuilderFromArray\\(\\) expects array\\{table\\: non\\-empty\\-string, alias\\?\\: non\\-empty\\-string, select\\: array\\<non\\-empty\\-string\\>, count\\?\\: non\\-empty\\-string, selectLiteral\\?\\: array\\<non\\-empty\\-string\\>, where\\: array\\<array\\{fieldName\\: string, parameter\\: array\\<float\\|int\\|string\\>\\|float\\|int\\|string, type\\: 0\\|1\\|2\\|3\\|4\\|5\\|101\\|102\\|117, expressionType\\: string, isColumn\\?\\: bool\\}\\>, join\\?\\: array\\<array\\{from\\: non\\-empty\\-string, to\\: non\\-empty\\-string, toAlias\\?\\: non\\-empty\\-string, where\\: array\\<array\\{fieldName\\: string, parameter\\: array\\<float\\|int\\|string\\>\\|float\\|int\\|string, type\\: 0\\|1\\|2\\|3\\|4\\|5\\|101\\|102\\|117, expressionType\\: string, isColumn\\?\\: bool\\}\\>\\}\\>, leftJoin\\?\\: array\\<array\\{from\\: non\\-empty\\-string, to\\: non\\-empty\\-string, toAlias\\?\\: non\\-empty\\-string, where\\: array\\<array\\{fieldName\\: string, parameter\\: array\\<float\\|int\\|string\\>\\|float\\|int\\|string, type\\: 0\\|1\\|2\\|3\\|4\\|5\\|101\\|102\\|117, expressionType\\: string, isColumn\\?\\: bool\\}\\>\\}\\>, \\.\\.\\.\\}, array\\{table\\: 'pages', select\\: array\\{'uid', 'pid', 'title'\\}, where\\: array\\{array\\{fieldName\\: 'pid', parameter\\: 1, type\\: 'Connection\\:\\:PARAM…', expressionType\\: 'not\\-allowed…'\\}\\}\\} given\\.$#"
+			count: 1
+			path: ../../Tests/Functional/Service/DatabaseQueryTypoScriptParserTest.php
+
+		-
+			message: "#^Parameter \\#1 \\$configuration of method Calien\\\\Xlsexport\\\\Service\\\\DatabaseQueryTypoScriptParser\\:\\:buildQueryBuilderFromArray\\(\\) expects array\\{table\\: non\\-empty\\-string, alias\\?\\: non\\-empty\\-string, select\\: array\\<non\\-empty\\-string\\>, count\\?\\: non\\-empty\\-string, selectLiteral\\?\\: array\\<non\\-empty\\-string\\>, where\\: array\\<array\\{fieldName\\: string, parameter\\: array\\<float\\|int\\|string\\>\\|float\\|int\\|string, type\\: 0\\|1\\|2\\|3\\|4\\|5\\|101\\|102\\|117, expressionType\\: string, isColumn\\?\\: bool\\}\\>, join\\?\\: array\\<array\\{from\\: non\\-empty\\-string, to\\: non\\-empty\\-string, toAlias\\?\\: non\\-empty\\-string, where\\: array\\<array\\{fieldName\\: string, parameter\\: array\\<float\\|int\\|string\\>\\|float\\|int\\|string, type\\: 0\\|1\\|2\\|3\\|4\\|5\\|101\\|102\\|117, expressionType\\: string, isColumn\\?\\: bool\\}\\>\\}\\>, leftJoin\\?\\: array\\<array\\{from\\: non\\-empty\\-string, to\\: non\\-empty\\-string, toAlias\\?\\: non\\-empty\\-string, where\\: array\\<array\\{fieldName\\: string, parameter\\: array\\<float\\|int\\|string\\>\\|float\\|int\\|string, type\\: 0\\|1\\|2\\|3\\|4\\|5\\|101\\|102\\|117, expressionType\\: string, isColumn\\?\\: bool\\}\\>\\}\\>, \\.\\.\\.\\}, array\\{table\\: 'pages', select\\: array\\{'uid', 'pid', 'title'\\}, where\\: array\\{array\\{fieldName\\: 'pid', parameter\\: array\\{1\\}, type\\: 'Connection\\:\\:PARAM…', expressionType\\: 'in'\\}\\}\\} given\\.$#"
+			count: 1
+			path: ../../Tests/Functional/Service/DatabaseQueryTypoScriptParserTest.php

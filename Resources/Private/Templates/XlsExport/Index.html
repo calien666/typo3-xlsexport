@@ -7,29 +7,20 @@
         f:schemaLocation="https://fluidtypo3.org/schemas/fluid-master.xsd"
         data-namespace-typo3-fluid="true"
 >
-<f:layout name="Default"/>
+<f:layout name="Module"/>
 <f:section name="Headline">
     <h1>XLS Exporter</h1>
     <f:be.pagePath/>
 </f:section>
 <f:section name="Content">
-    <f:if condition="{id}">
+    <f:if condition="{noConfig}">
         <f:then>
-            <f:if condition="{noconfig}">
-                <f:then>
-                    <f:be.infobox title="{f:translate(key: 'noconfig.title')}" state="-1">
-                        {f:translate(key: 'noconfig.body') -> f:format.raw()}
-                    </f:be.infobox>
-                </f:then>
-                <f:else>
-                    <f:render partial="List" arguments="{_all}"/>
-                </f:else>
-            </f:if>
+            <f:be.infobox title="{f:translate(key: 'noconfig.title', extensionName: 'xlsexport')}" state="-1">
+                {f:translate(key: 'noconfig.body', extensionName: 'xlsexport') -> f:format.raw()}
+            </f:be.infobox>
         </f:then>
         <f:else>
-            <f:be.infobox title="" state="-1">
-                {f:translate(key: 'index.selectPage', extensionName: 'xlsexport')}
-            </f:be.infobox>
+            <f:render partial="List" arguments="{_all}"/>
         </f:else>
     </f:if>
 </f:section>
