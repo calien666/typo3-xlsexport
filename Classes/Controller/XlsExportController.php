@@ -70,7 +70,11 @@ class XlsExportController extends ActionController
                 $this->view->assign('noconfig', 1);
             }
         }
-        return $this->htmlResponse();
+
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $moduleTemplate->setTitle('XLS Exporter');
+        $moduleTemplate->setContent($this->view->render());
+        return $this->htmlResponse($moduleTemplate->renderContent());
     }
 
     /**
