@@ -92,7 +92,7 @@ trait ExportWithTsSettingsTrait
 
         $sheet = $this->loadSheet();
 
-        $this->rowCount = 1;
+        self::$rowCount = 1;
 
         $headerManipulated = false;
         if (array_key_exists($settings['table'], $hookArray) && is_array($hookArray[$settings['table']])) {
@@ -103,7 +103,7 @@ trait ExportWithTsSettingsTrait
                         'Usage of hooks inside XLS export is deprecated and will be removed in future versions. Use PSR-14 Event dispatching instead.',
                         E_USER_DEPRECATED
                     );
-                    $hookObj->alternateHeaderLine($sheet, $this, $exportfieldnames, $this->rowCount);
+                    $hookObj->alternateHeaderLine($sheet, $this, $exportfieldnames, self::$rowCount);
                     $headerManipulated = true;
                 }
             }

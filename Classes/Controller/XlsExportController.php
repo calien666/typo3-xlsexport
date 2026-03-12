@@ -70,7 +70,11 @@ class XlsExportController extends ActionController
                 $this->view->assign('noconfig', 1);
             }
         }
-        return $this->htmlResponse();
+
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $moduleTemplate->setTitle('XLS Exporter');
+        $moduleTemplate->setContent($this->view->render());
+        return $this->htmlResponse($moduleTemplate->renderContent());
     }
 
     /**
@@ -97,7 +101,7 @@ class XlsExportController extends ActionController
         $file = $this->doExport($settings, $this->pageId);
 
         //ins Archiv verschieben
-        if ($settings['archive']) {
+        if (isset($settings['archive']) && $settings['archive']) {
             $archive = $settings['archive'];
 
             $dbQuery = $this->dbConnection->getQueryBuilderForTable($settings['table']);
