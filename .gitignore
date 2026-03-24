@@ -66,3 +66,4 @@ tests/_output/*
 /.Build
 .php-cs-fixer.cache
 .vscode/
+.cache
