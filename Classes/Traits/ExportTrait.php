@@ -8,6 +8,7 @@ use Calien\Xlsexport\Export\Event\AddColumnsToSheetEvent;
 use Calien\Xlsexport\Export\Event\ManipulateCellDataEvent;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Worksheet\Row;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -60,7 +61,11 @@ trait ExportTrait
     protected static function writeHeader(Worksheet $sheet, array $headerFields)
     {
         foreach ($headerFields as $field => $value) {
-            $sheet->setCellValue(self::$cols[$field] . self::$rowCount, $value);
+            $sheet->setCellValueExplicit(
+                self::$cols[$field] . self::$rowCount,
+                $value,
+                DataType::TYPE_STRING
+            );
         }
         self::$rowCount++;
     }
@@ -94,7 +99,11 @@ trait ExportTrait
                 if (!empty($this->eventDispatcher)) {
                     $this->eventDispatcher->dispatch($manipulateCellData);
                 }
-                $sheet->setCellValue(self::$cols[$colIndexer] . self::$rowCount, $manipulateCellData->getValue());
+                $sheet->setCellValueExplicit(
+                    self::$cols[$colIndexer] . self::$rowCount,
+                    $manipulateCellData->getValue(),
+                    DataType::TYPE_STRING
+                );
             }
             $colIndexer++;
             if (!empty($this->eventDispatcher)) {
