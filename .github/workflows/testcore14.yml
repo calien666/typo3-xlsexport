@@ -7,7 +7,7 @@ on:
 jobs:
   code-quality:
     name: "code quality with core v14"
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -48,7 +48,7 @@ jobs:
 
   unit:
     name: "unit tests with core v14"
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     needs: code-quality
     strategy:
       fail-fast: false
@@ -66,7 +66,7 @@ jobs:
 
   functional:
     name: "functional tests with core v14"
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     needs: code-quality
     strategy:
       fail-fast: false
