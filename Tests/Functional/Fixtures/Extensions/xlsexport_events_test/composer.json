@@ -1,0 +1,16 @@
+{
+  "name": "calien/xlsexport-events-test",
+  "description": "Fixture extension exercising the xlsexport PSR-14 export events",
+  "type": "typo3-cms-extension",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Calien\\XlsexportEventsTest\\": "Classes/"
+    }
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "xlsexport_events_test"
+    }
+  }
+}
