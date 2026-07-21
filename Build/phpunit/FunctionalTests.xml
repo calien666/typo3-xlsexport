@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<!--
+    Boilerplate for a functional test suite setup, adapted from TYPO3 testing-framework.
+
+    Functional tests should extend \TYPO3\TestingFramework\Core\Tests\FunctionalTestCase.
+    The functional suite bootstrap lives next to this file as FunctionalTestsBootstrap.php.
+-->
+<phpunit
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.4/phpunit.xsd"
+        backupGlobals="true"
+        beStrictAboutTestsThatDoNotTestAnything="false"
+        bootstrap="FunctionalTestsBootstrap.php"
+        cacheDirectory=".phpunit.cache"
+        cacheResult="false"
+        colors="true"
+        displayDetailsOnTestsThatTriggerDeprecations="true"
+        displayDetailsOnTestsThatTriggerErrors="true"
+        displayDetailsOnTestsThatTriggerNotices="true"
+        displayDetailsOnTestsThatTriggerWarnings="true"
+        displayDetailsOnPhpunitDeprecations="true"
+        failOnDeprecation="true"
+        failOnNotice="true"
+        failOnPhpunitDeprecation="true"
+        failOnRisky="true"
+        failOnWarning="true"
+        requireCoverageMetadata="false"
+>
+    <testsuites>
+        <testsuite name="Functional tests">
+            <directory>../../Tests/Functional/</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <const name="TYPO3_TESTING_FUNCTIONAL_REMOVE_ERROR_HANDLER"
+               value="true"/>
+        <ini name="display_errors" value="1"/>
+        <env name="TYPO3_CONTEXT" value="Testing"/>
+    </php>
+</phpunit>

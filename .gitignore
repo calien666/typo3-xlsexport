@@ -65,5 +65,12 @@ tests/_output/*
 
 /.Build
 .php-cs-fixer.cache
+.phpunit.cache
 .vscode/
 .cache
+
+# Third-party dependencies vendored only into the TER archive at build time
+/Resources/Private/Php/
+
+# Refactor working document (not part of the delivered code)
+/REFACTOR_PLAN.md

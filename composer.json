@@ -16,54 +16,49 @@
     }
   ],
   "require": {
-    "php": ">=7.4",
-    "typo3/cms-core": "^12.4",
-    "phpoffice/phpspreadsheet": "^1.27 || ^2.0",
-    "ext-pdo": "*"
+    "php": "^8.2 || ^8.3 || ^8.4 || ^8.5",
+    "phpoffice/phpspreadsheet": "^3",
+    "typo3/cms-backend": "^13.4 || ^14.3",
+    "typo3/cms-core": "^13.4 || ^14.3",
+    "typo3/cms-fluid": "^13.4 || ^14.3"
   },
   "require-dev": {
-    "armin/editorconfig-cli": "^1.5",
-    "friendsofphp/php-cs-fixer": "^3.0",
-    "friendsoftypo3/tt-address": "^7",
-    "phpstan/phpstan": "^1.3",
-    "phpunit/phpunit": "^9.5",
-    "typo3/cms-backend": "^12.4",
-    "typo3/cms-fluid-styled-content": "^12.4",
-    "typo3/cms-install": "^12.4",
-    "typo3/cms-lowlevel": "^12.4",
-    "typo3/cms-tstemplate": "^12.4"
-  },
-  "extra": {
-    "typo3/cms": {
-      "extension-key": "xlsexport",
-      "web-dir": "public"
-    }
+    "friendsofphp/php-cs-fixer": "^3.64",
+    "helmich/typo3-typoscript-lint": "^3.3",
+    "phpstan/phpstan": "^2.1",
+    "phpunit/phpunit": "^11",
+    "saschaegerer/phpstan-typo3": "^3",
+    "typo3/testing-framework": "^9"
   },
   "autoload": {
     "psr-4": {
       "Calien\\Xlsexport\\": "Classes/"
     }
   },
-  "scripts": {
-    "ec:check": "ec -v -n --no-progress -e'var/log' -e'.Build' -e'.ddev' -e'phpstan-baseline.neon'",
-    "ec:fix": "ec -v -n --fix -e'var/log' -e'.Build' -e'.ddev'",
-    "cs:check": "php-cs-fixer fix --config .config/.php-cs-rules.php --ansi --diff --verbose --dry-run",
-    "cs:fix": "php-cs-fixer fix --config .config/.php-cs-rules.php --ansi",
-    "analyze:php": "phpstan analyse --ansi --no-progress --memory-limit=768M --configuration=.config/phpstan.neon",
-    "test:php": [
-      "@test:php:unit",
-      "@test:php:functional"
-    ],
-    "test:php:unit": "phpunit --colors=always --configuration .config/phpunit-unit.xml",
-    "test:php:functional": "@test:php:unit --configuration .config/phpunit-functional.xml"
+  "autoload-dev": {
+    "psr-4": {
+      "Calien\\Xlsexport\\Tests\\": "Tests/"
+    }
   },
   "config": {
     "allow-plugins": {
       "typo3/cms-composer-installers": true,
       "typo3/class-alias-loader": true
     },
-    "bin-dir": "bin",
+    "bin-dir": ".Build/bin",
+    "vendor-dir": ".Build/vendor",
     "optimize-autoloader": true,
     "sort-packages": true
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "xlsexport",
+      "web-dir": ".Build/Web",
+      "Package": {
+        "providesPackages": {
+          "phpoffice/phpspreadsheet": "Resources/Private/Php/ComposerVendor"
+        }
+      }
+    }
   }
 }
