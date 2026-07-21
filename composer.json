@@ -28,6 +28,7 @@
     "phpstan/phpstan": "^2.1",
     "phpunit/phpunit": "^11",
     "saschaegerer/phpstan-typo3": "^3",
+    "sbuerk/fixture-packages": "^1.1",
     "symfony/translation": "^7.4 || ^8.1",
     "typo3/testing-framework": "^9"
   },
@@ -44,7 +45,8 @@
   "config": {
     "allow-plugins": {
       "typo3/cms-composer-installers": true,
-      "typo3/class-alias-loader": true
+      "typo3/class-alias-loader": true,
+      "sbuerk/fixture-packages": true
     },
     "bin-dir": ".Build/bin",
     "vendor-dir": ".Build/vendor",
@@ -60,6 +62,9 @@
           "phpoffice/phpspreadsheet": "Resources/Private/Php/ComposerVendor"
         }
       }
+    },
+    "sbuerk/fixture-packages": {
+      "paths": ["Tests/Functional/Fixtures/Extensions/*"]
     }
   }
 }
