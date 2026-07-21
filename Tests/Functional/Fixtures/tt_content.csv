@@ -1,0 +1,5 @@
+"tt_content",,,,,,
+,"uid","pid","header","bodytext","sorting","hidden","deleted"
+,1,1,"First","red,green,blue",10,0,0
+,2,1,"Second","",20,0,0
+,3,2,"Third","",30,0,0
