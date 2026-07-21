@@ -7,6 +7,7 @@ namespace Calien\Xlsexport\Controller;
 use Calien\Xlsexport\Exception\ConfigurationNotFoundException;
 use Calien\Xlsexport\Exception\ExportWithoutConfigurationException;
 use Calien\Xlsexport\Service\DatabaseQueryTypoScriptParser;
+use Calien\Xlsexport\Service\ExportConfigurationValidator;
 use Calien\Xlsexport\Service\SpreadsheetWriteService;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -29,6 +30,7 @@ final class XlsExportController
         private readonly ModuleTemplateFactory $moduleTemplateFactory,
         private readonly TypoScriptService $typoScriptService,
         private readonly DatabaseQueryTypoScriptParser $databaseQueryTypoScriptParser,
+        private readonly ExportConfigurationValidator $exportConfigurationValidator,
         private readonly SpreadsheetWriteService $spreadsheetWriteService,
         private readonly ResponseFactoryInterface $responseFactory
     ) {}
@@ -66,20 +68,25 @@ final class XlsExportController
         $configurationKey = (string)$configurationKey;
 
         $modTSconfig = $this->loadTSconfig($pageId);
-        if (!array_key_exists($configurationKey, $modTSconfig)) {
+        if (!array_key_exists($configurationKey, $modTSconfig) || !is_array($modTSconfig[$configurationKey])) {
             throw new ConfigurationNotFoundException(
                 'Configuration not found for export on current page',
                 1731105227250
             );
         }
+        $rawConfiguration = $modTSconfig[$configurationKey];
+        $presentation = $this->exportConfigurationValidator->validatePresentation($rawConfiguration);
 
-        $exportDataQuery = $this->databaseQueryTypoScriptParser->buildQueryBuilderFromArray($modTSconfig[$configurationKey]);
+        $exportDataQuery = $this->databaseQueryTypoScriptParser->buildQueryBuilderFromArray(
+            $this->exportConfigurationValidator->validate($rawConfiguration)
+        );
         $this->databaseQueryTypoScriptParser->replacePlaceholderWithCurrentId($exportDataQuery, $pageId);
 
         return $this->streamResponse(
             $this->spreadsheetWriteService->generateSpreadsheet(
                 $exportDataQuery->executeQuery(),
-                $modTSconfig[$configurationKey],
+                $presentation['fieldLabels'],
+                $presentation['format'],
                 $configurationKey
             )
         );
@@ -96,10 +103,12 @@ final class XlsExportController
             if (!is_array($configuration)) {
                 continue;
             }
-            $countQuery = $this->databaseQueryTypoScriptParser->buildCountQueryFromArray($configuration);
+            $validated = $this->exportConfigurationValidator->validate($configuration);
+            $countQuery = $this->databaseQueryTypoScriptParser->buildCountQueryFromArray($validated);
             $this->databaseQueryTypoScriptParser->replacePlaceholderWithCurrentId($countQuery, $pageId);
+            $label = $configuration['label'] ?? null;
             $datasets[$configName] = [
-                'label' => $configuration['label'] ?? $configuration['table'],
+                'label' => (is_string($label) && $label !== '') ? $label : $validated['table'],
                 'count' => $countQuery->executeQuery()->fetchOne(),
             ];
         }
