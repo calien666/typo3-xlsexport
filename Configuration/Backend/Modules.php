@@ -2,22 +2,25 @@
 
 declare(strict_types=1);
 
-defined('TYPO3') or die();
+use Calien\Xlsexport\Controller\XlsExportController;
 
 return [
     'web_xlsexport' => [
         'parent' => 'web',
-        'position' => 'bottom',
-        'access' => 'user,group',
+        'position' => [
+            'after' => 'web_list',
+        ],
+        'access' => 'user',
         'iconIdentifier' => 'mimetypes-excel',
         'labels' => 'LLL:EXT:xlsexport/Resources/Private/Language/locallang_db.xlf',
-        'extensionName' => 'Xlsexport',
-        'controllerActions' => [
-            \Calien\Xlsexport\Controller\XlsExportController::class => [
-                'index',
-                'export',
+        'routes' => [
+            '_default' => [
+                'target' => XlsExportController::class . '::index',
+            ],
+            'export' => [
+                'path' => '/export',
+                'target' => XlsExportController::class . '::export',
             ],
         ],
-        'inheritNavigationComponentFromMainModule' => true,
     ],
 ];
