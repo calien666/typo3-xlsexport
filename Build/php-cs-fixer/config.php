@@ -49,11 +49,14 @@ return (new \PhpCsFixer\Config())
             ->notName('ext_emconf.php')
             ->notName('ext_localconf.php')
             ->notName('ext_tables.php')
-            ->in([
-                __DIR__ . '/../../Classes',
-                __DIR__ . '/../../Configuration',
-                __DIR__ . '/../../Tests',
-            ])
+            ->in(array_filter(
+                [
+                    __DIR__ . '/../../Classes',
+                    __DIR__ . '/../../Configuration',
+                    __DIR__ . '/../../Tests',
+                ],
+                'is_dir'
+            ))
     )
     ->setRiskyAllowed(true)
     ->setRules([
