@@ -8,10 +8,11 @@ $EM_CONF[$_EXTKEY] = [
     'author_email' => 'typo3@calien.de',
     'author_company' => '',
     'state' => 'beta',
-    'version' => '4.0.1',
+    'version' => '5.0.0',
     'constraints' => [
         'depends' => [
-            'typo3' => '12.4.0-12.4.99',
+            'typo3' => '13.4.0-14.3.99',
+            'php' => '8.2.0-8.5.99',
         ],
         'conflicts' => [
         ],
@@ -21,15 +22,6 @@ $EM_CONF[$_EXTKEY] = [
     'autoload' => [
         'psr-4' => [
             'Calien\\Xlsexport\\' => 'Classes',
-            'ZipStream\\' => 'Resources/Private/Php/maennchen/zipstream-php/src',
-            'Symfony\\Polyfill\\Mbstring\\' => 'Resources/Private/Php/symfony/polyfill-mbstring',
-            'Psr\\SimpleCache\\' => 'Resources/Private/Php/psr/simple-cache/src',
-            'Psr\\Http\\Message\\' => 'Resources/Private/Php/psr/http-message/src',
-            'Psr\\Http\\Client\\' => 'Resources/Private/Php/psr/http-client/src',
-            'PhpOffice\\PhpSpreadsheet\\' => 'Resources/Private/Php/phpoffice/phpspreadsheet/src',
-            'MyCLabs\\Enum\\' => 'Resources/Private/Php/myclabs/php-enum/src',
-            'Matrix\\' => 'Resources/Private/Php/markbaker/matrix/classes/src',
-            'Complex\\' => 'Resources/Private/Php/markbaker/complex/classes/src',
         ],
     ],
 ];
