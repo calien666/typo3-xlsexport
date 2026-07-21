@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Calien\Xlsexport\Service;
 
+use Calien\Xlsexport\Enum\ExportFormat;
 use Calien\Xlsexport\Event\Export\AlternateFirstColumnInSheetEvent;
 use Calien\Xlsexport\Event\Export\AlternateHeaderLineEvent;
 use Calien\Xlsexport\Event\Export\ManipulateRowEntryEvent;
@@ -27,15 +28,12 @@ final class SpreadsheetWriteService
     ) {}
 
     /**
-     * @param array{
-     *     select: non-empty-string[],
-     *     format?: non-empty-string,
-     *     fieldLabels: non-empty-string[]
-     * } $configuration
+     * @param array<array-key, non-empty-string> $fieldLabels
+     * @param non-empty-string $format
      * @throws ExportFormatNotDetectedException
      * @throws Exception
      */
-    public function generateSpreadsheet(Result $result, array $configuration, string $configurationKey): Stream
+    public function generateSpreadsheet(Result $result, array $fieldLabels, string $format, string $configurationKey): Stream
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->setActiveSheetIndex(0);
@@ -45,7 +43,7 @@ final class SpreadsheetWriteService
         $firstColumn = $alternateFirstColumnEvent->getFirstColumn();
 
         /** @var AlternateHeaderLineEvent $alternateHeaderLineEvent */
-        $alternateHeaderLineEvent = $this->eventDispatcher->dispatch(new AlternateHeaderLineEvent($configuration['fieldLabels'], $configurationKey));
+        $alternateHeaderLineEvent = $this->eventDispatcher->dispatch(new AlternateHeaderLineEvent($fieldLabels, $configurationKey));
         $headerFieldLabels = $alternateHeaderLineEvent->getHeaderFieldLabels();
         $sheet->fromArray($headerFieldLabels, null, $firstColumn . '1');
         while ($dataRow = $result->fetchAssociative()) {
@@ -58,7 +56,7 @@ final class SpreadsheetWriteService
 
         $iWriter = IOFactory::createWriter(
             $spreadsheet,
-            $this->resolveFormatToWriterConstant($configuration['format'] ?? 'xlsx')
+            $this->resolveWriterType($format)
         );
 
         $resource = fopen('php://memory', 'w');
@@ -76,18 +74,16 @@ final class SpreadsheetWriteService
     /**
      * @throws ExportFormatNotDetectedException
      */
-    private function resolveFormatToWriterConstant(string $format): string
+    private function resolveWriterType(string $format): string
     {
-        $detectConstant = sprintf('WRITER_%s', mb_strtoupper($format));
-        $reflection = new \ReflectionClass(IOFactory::class);
-        $writerType = $reflection->getConstant($detectConstant);
-        if (!is_string($writerType)) {
+        $exportFormat = ExportFormat::tryFrom(strtolower($format));
+        if ($exportFormat === null) {
             throw new ExportFormatNotDetectedException(
-                sprintf('The export format for file format "%s" was not found.', $format),
+                sprintf('The export format "%s" is not supported.', $format),
                 1731106070328
             );
         }
 
-        return $writerType;
+        return $exportFormat->toWriterType();
     }
 }
