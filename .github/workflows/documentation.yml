@@ -1,0 +1,16 @@
+name: documentation
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  documentation:
+    name: "render documentation"
+    runs-on: ubuntu-24.04
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+
+      - name: "Render documentation"
+        run: "Build/Scripts/runTests.sh -s renderDocumentation"
