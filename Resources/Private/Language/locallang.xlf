@@ -21,6 +21,9 @@
 			<trans-unit id="index.export">
 				<source>Export</source>
 			</trans-unit>
+			<trans-unit id="index.filename">
+				<source>File name</source>
+			</trans-unit>
 			<trans-unit id="index.selectPage">
 				<source>Please choose a page on the left</source>
 			</trans-unit>

@@ -57,6 +57,29 @@ final class XlsExportControllerTest extends FunctionalTestCase
         $this->assertStringContainsString('"First"', $body);
         $this->assertStringContainsString('"Second"', $body);
         $this->assertStringNotContainsString('"Third"', $body);
+        $this->assertSame('text/csv', $response->getHeaderLine('Content-Type'));
+        $this->assertSame('attachment; filename="content.csv"', $response->getHeaderLine('Content-Disposition'));
+    }
+
+    #[Test]
+    public function exportRespectsRequestedFormatAndSanitizedFilename(): void
+    {
+        $GLOBALS['TYPO3_CONF_VARS']['BE']['defaultPageTSconfig'] .= $this->exampleTSconfig();
+        $subject = $this->get(XlsExportController::class);
+        $request = (new ServerRequest())->withQueryParams([
+            'id' => 1,
+            'configuration' => 'content',
+            'format' => 'xlsx',
+            'filename' => 'my/report',
+        ]);
+
+        $response = $subject->export($request);
+
+        $this->assertSame(
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            $response->getHeaderLine('Content-Type')
+        );
+        $this->assertSame('attachment; filename="my_report.xlsx"', $response->getHeaderLine('Content-Disposition'));
     }
 
     private function exampleTSconfig(): string
