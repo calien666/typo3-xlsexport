@@ -61,7 +61,8 @@
         "providesPackages": {
           "phpoffice/phpspreadsheet": "contrib/Libraries"
         }
-      }
+      },
+      "version": "5.0.0"
     },
     "sbuerk/fixture-packages": {
       "paths": [

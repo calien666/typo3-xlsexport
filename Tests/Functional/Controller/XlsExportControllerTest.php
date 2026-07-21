@@ -10,6 +10,8 @@ use Calien\Xlsexport\Exception\ExportWithoutConfigurationException;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\CMS\Backend\Routing\Route;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Http\NormalizedParams;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
@@ -32,29 +34,27 @@ final class XlsExportControllerTest extends FunctionalTestCase
         $this->expectException(ExportWithoutConfigurationException::class);
         $this->expectExceptionCode(1731105142347);
 
-        $subject->export(new ServerRequest());
+        $subject->export($this->backendRequest());
     }
 
     #[Test]
     public function exportWithUnknownConfigurationThrowsException(): void
     {
         $subject = $this->get(XlsExportController::class);
-        $request = (new ServerRequest())->withQueryParams(['id' => 1, 'configuration' => 'doesNotExist']);
 
         $this->expectException(ConfigurationNotFoundException::class);
         $this->expectExceptionCode(1731105227250);
 
-        $subject->export($request);
+        $subject->export($this->backendRequest(['id' => 1, 'configuration' => 'doesNotExist']));
     }
 
     #[Test]
     public function exportStreamsTheConfiguredData(): void
     {
-        $GLOBALS['TYPO3_CONF_VARS']['BE']['defaultPageTSconfig'] .= $this->exampleTSconfig();
+        $this->createPageWithTSconfig($this->exampleTSconfig());
         $subject = $this->get(XlsExportController::class);
-        $request = (new ServerRequest())->withQueryParams(['id' => 1, 'configuration' => 'content']);
 
-        $response = $subject->export($request);
+        $response = $subject->export($this->backendRequest(['id' => 1, 'configuration' => 'content']));
         $body = (string)$response->getBody();
 
         $this->assertStringContainsString('"First"', $body);
@@ -67,9 +67,9 @@ final class XlsExportControllerTest extends FunctionalTestCase
     #[Test]
     public function exportRespectsRequestedFormatAndSanitizedFilename(): void
     {
-        $GLOBALS['TYPO3_CONF_VARS']['BE']['defaultPageTSconfig'] .= $this->exampleTSconfig();
+        $this->createPageWithTSconfig($this->exampleTSconfig());
         $subject = $this->get(XlsExportController::class);
-        $request = (new ServerRequest())->withQueryParams([
+        $request = $this->backendRequest([
             'id' => 1,
             'configuration' => 'content',
             'format' => 'xlsx',
@@ -91,10 +91,9 @@ final class XlsExportControllerTest extends FunctionalTestCase
         $this->importCSVDataSet(__DIR__ . '/../Fixtures/be_users.csv');
         $backendUser = $this->setUpBackendUser(1);
         $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)->createFromUserPreferences($backendUser);
-        $GLOBALS['TYPO3_CONF_VARS']['BE']['defaultPageTSconfig'] .= $this->exampleTSconfig() . $this->brokenTSconfig();
+        $this->createPageWithTSconfig($this->exampleTSconfig() . $this->brokenTSconfig());
         $subject = $this->get(XlsExportController::class);
-        $request = (new ServerRequest())
-            ->withQueryParams(['id' => 1])
+        $request = $this->backendRequest(['id' => 1])
             ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE)
             ->withAttribute('route', new Route('/xlsexport', ['packageName' => 'calien/xlsexport']));
 
@@ -105,6 +104,27 @@ final class XlsExportControllerTest extends FunctionalTestCase
         $this->assertStringContainsString('Skipped invalid export', $body);
         $this->assertStringContainsString('broken', $body);
         $this->assertStringContainsString('tt_content', $body);
+    }
+
+    /**
+     * @param array<string, mixed> $queryParams
+     */
+    private function backendRequest(array $queryParams = []): ServerRequest
+    {
+        $request = (new ServerRequest())->withQueryParams($queryParams);
+
+        return $request->withAttribute('normalizedParams', NormalizedParams::createFromRequest($request));
+    }
+
+    private function createPageWithTSconfig(string $tsConfig): void
+    {
+        $this->get(ConnectionPool::class)->getConnectionForTable('pages')->insert('pages', [
+            'uid' => 1,
+            'pid' => 0,
+            'title' => 'Home',
+            'doktype' => 1,
+            'TSconfig' => $tsConfig,
+        ]);
     }
 
     private function brokenTSconfig(): string
