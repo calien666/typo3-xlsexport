@@ -1,0 +1,62 @@
+# Example export for the XLS Exporter backend module.
+#
+# Enable the "XLS Exporter" site set on a site to get this demo export on its
+# pages, then replace it with your own exports. Each key below "mod.web_xlsexport"
+# is one export offered in the module.
+mod.web_xlsexport {
+    content {
+        # Human-readable label or an "LLL:EXT:..." reference
+        label = Page content elements
+        table = tt_content
+        # Any writer format supported by PhpSpreadsheet (xlsx, xls, csv, ods, html)
+        format = xlsx
+
+        # Columns to read; aligned by key with "fieldLabels" below
+        select {
+            10 = tt_content.uid
+            20 = tt_content.header
+            30 = tt_content.CType
+            40 = pages.title
+        }
+        # Column headers written into the first sheet row
+        fieldLabels {
+            10 = ID
+            20 = Header
+            30 = Type
+            40 = Page
+        }
+        # Field counted for the record count shown in the module (or *)
+        count = *
+
+        where {
+            10 {
+                fieldName = tt_content.pid
+                # ###CURRENT_ID### is replaced with the currently selected page id
+                parameter = ###CURRENT_ID###
+                expressionType = eq
+                # Keyword mapped to a QueryBuilder parameter type:
+                # int, string, bool, null, lob, int_array, string_array
+                type = int
+            }
+        }
+
+        join {
+            10 {
+                from = tt_content
+                to = pages
+                toAlias = pages
+                where {
+                    10 {
+                        fieldName = tt_content.pid
+                        # With the isColumn flag enabled, the parameter is a
+                        # column identifier rather than a value, so no type is
+                        # needed here
+                        parameter = pages.uid
+                        expressionType = eq
+                        isColumn = 1
+                    }
+                }
+            }
+        }
+    }
+}
