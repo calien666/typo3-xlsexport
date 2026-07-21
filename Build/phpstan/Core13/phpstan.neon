@@ -5,6 +5,7 @@ includes:
 parameters:
   # Use local .cache dir instead of /tmp
   tmpDir: ../../../.cache/phpstan
+  # $_EXTKEY is injected by the extension manager when it loads ext_emconf.php
   ignoreErrors:
     - '#Variable \$_EXTKEY might not be defined\.#'
   level: 8
@@ -13,6 +14,7 @@ parameters:
     - ../../../Classes
     - ../../../Configuration
     - ../../../Tests
+    - ../../../ext_emconf.php
   # Once a genuine v13<->v14 divergence is split into sibling Core13//Core14/ folders, exclude the
   # other major here so this config only analyses the v13 implementation:
   #excludePaths:
