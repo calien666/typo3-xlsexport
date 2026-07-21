@@ -7,6 +7,7 @@ namespace Calien\Xlsexport\Controller;
 use Calien\Xlsexport\Enum\ExportFormat;
 use Calien\Xlsexport\Exception\ConfigurationNotFoundException;
 use Calien\Xlsexport\Exception\ExportWithoutConfigurationException;
+use Calien\Xlsexport\Exception\InvalidExportConfigurationException;
 use Calien\Xlsexport\Service\DatabaseQueryTypoScriptParser;
 use Calien\Xlsexport\Service\ExportConfigurationValidator;
 use Calien\Xlsexport\Service\SpreadsheetWriteService;
@@ -18,6 +19,9 @@ use TYPO3\CMS\Backend\Attribute\AsController;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
+use TYPO3\CMS\Core\Messaging\FlashMessage;
+use TYPO3\CMS\Core\Messaging\FlashMessageService;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
 
 /**
@@ -35,7 +39,8 @@ final class XlsExportController
         private readonly ExportConfigurationValidator $exportConfigurationValidator,
         private readonly SpreadsheetWriteService $spreadsheetWriteService,
         private readonly ResponseFactoryInterface $responseFactory,
-        private readonly UriBuilder $uriBuilder
+        private readonly UriBuilder $uriBuilder,
+        private readonly FlashMessageService $flashMessageService
     ) {}
 
     public function index(ServerRequestInterface $request): ResponseInterface
@@ -109,20 +114,46 @@ final class XlsExportController
             if (!is_array($configuration)) {
                 continue;
             }
-            $validated = $this->exportConfigurationValidator->validate($configuration);
-            $countQuery = $this->databaseQueryTypoScriptParser->buildCountQueryFromArray($validated);
-            $this->databaseQueryTypoScriptParser->replacePlaceholderWithCurrentId($countQuery, $pageId);
-            $rawLabel = $configuration['label'] ?? null;
-            $label = (is_string($rawLabel) && $rawLabel !== '') ? $rawLabel : $validated['table'];
-            $datasets[$configName] = [
-                'label' => $label,
-                'count' => $countQuery->executeQuery()->fetchOne(),
-                'suggestedFilename' => $this->sanitizeFilename($label),
-                'defaultFormat' => $this->configuredFormat($configuration)->value,
-            ];
+            try {
+                $datasets[$configName] = $this->buildDataset($configuration, $pageId);
+            } catch (InvalidExportConfigurationException $exception) {
+                $this->flashInvalidConfiguration((string)$configName, $exception);
+            }
         }
 
         return $datasets;
+    }
+
+    /**
+     * @param array<int|string, mixed> $configuration
+     * @return array{label: string, count: int|false, suggestedFilename: string, defaultFormat: string}
+     * @throws InvalidExportConfigurationException
+     */
+    private function buildDataset(array $configuration, int $pageId): array
+    {
+        $validated = $this->exportConfigurationValidator->validate($configuration);
+        $countQuery = $this->databaseQueryTypoScriptParser->buildCountQueryFromArray($validated);
+        $this->databaseQueryTypoScriptParser->replacePlaceholderWithCurrentId($countQuery, $pageId);
+        $rawLabel = $configuration['label'] ?? null;
+        $label = (is_string($rawLabel) && $rawLabel !== '') ? $rawLabel : $validated['table'];
+
+        return [
+            'label' => $label,
+            'count' => $countQuery->executeQuery()->fetchOne(),
+            'suggestedFilename' => $this->sanitizeFilename($label),
+            'defaultFormat' => $this->configuredFormat($configuration)->value,
+        ];
+    }
+
+    private function flashInvalidConfiguration(string $configName, InvalidExportConfigurationException $exception): void
+    {
+        $this->flashMessageService->getMessageQueueByIdentifier()->enqueue(
+            new FlashMessage(
+                $exception->getMessage(),
+                sprintf('Skipped invalid export "%s"', $configName),
+                ContextualFeedbackSeverity::WARNING
+            )
+        );
     }
 
     private function streamResponse(StreamInterface $spreadsheet, ExportFormat $format, string $filename): ResponseInterface

@@ -8,7 +8,10 @@ use Calien\Xlsexport\Controller\XlsExportController;
 use Calien\Xlsexport\Exception\ConfigurationNotFoundException;
 use Calien\Xlsexport\Exception\ExportWithoutConfigurationException;
 use PHPUnit\Framework\Attributes\Test;
+use TYPO3\CMS\Backend\Routing\Route;
+use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\ServerRequest;
+use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 final class XlsExportControllerTest extends FunctionalTestCase
@@ -80,6 +83,40 @@ final class XlsExportControllerTest extends FunctionalTestCase
             $response->getHeaderLine('Content-Type')
         );
         $this->assertSame('attachment; filename="my_report.xlsx"', $response->getHeaderLine('Content-Disposition'));
+    }
+
+    #[Test]
+    public function indexSkipsInvalidConfigurationAndFlashesAWarning(): void
+    {
+        $this->importCSVDataSet(__DIR__ . '/../Fixtures/be_users.csv');
+        $backendUser = $this->setUpBackendUser(1);
+        $GLOBALS['LANG'] = $this->get(LanguageServiceFactory::class)->createFromUserPreferences($backendUser);
+        $GLOBALS['TYPO3_CONF_VARS']['BE']['defaultPageTSconfig'] .= $this->exampleTSconfig() . $this->brokenTSconfig();
+        $subject = $this->get(XlsExportController::class);
+        $request = (new ServerRequest())
+            ->withQueryParams(['id' => 1])
+            ->withAttribute('applicationType', SystemEnvironmentBuilder::REQUESTTYPE_BE)
+            ->withAttribute('route', new Route('/xlsexport', ['packageName' => 'calien/xlsexport']));
+
+        $body = (string)$subject->index($request)->getBody();
+
+        // The invalid "broken" export is skipped and reported as a rendered warning,
+        // while the valid "content" export is still listed.
+        $this->assertStringContainsString('Skipped invalid export', $body);
+        $this->assertStringContainsString('broken', $body);
+        $this->assertStringContainsString('tt_content', $body);
+    }
+
+    private function brokenTSconfig(): string
+    {
+        return <<<'TSCONFIG'
+
+mod.web_xlsexport.broken {
+    select {
+        10 = uid
+    }
+}
+TSCONFIG;
     }
 
     private function exampleTSconfig(): string
