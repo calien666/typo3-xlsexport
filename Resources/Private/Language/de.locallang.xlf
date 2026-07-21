@@ -27,6 +27,10 @@
 				<source>Export</source>
 				<target>Export</target>
 			</trans-unit>
+			<trans-unit id="index.filename" resname="index.filename">
+				<source>File name</source>
+				<target>Dateiname</target>
+			</trans-unit>
 			<trans-unit id="index.selectPage" resname="index.selectPage">
 				<source>Please choose a page on the left</source>
 				<target>Bitte links eine Seite wählen</target>

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Calien\Xlsexport\Controller;
 
+use Calien\Xlsexport\Enum\ExportFormat;
 use Calien\Xlsexport\Exception\ConfigurationNotFoundException;
 use Calien\Xlsexport\Exception\ExportWithoutConfigurationException;
 use Calien\Xlsexport\Service\DatabaseQueryTypoScriptParser;
@@ -14,6 +15,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use TYPO3\CMS\Backend\Attribute\AsController;
+use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\TypoScript\TypoScriptService;
@@ -32,7 +34,8 @@ final class XlsExportController
         private readonly DatabaseQueryTypoScriptParser $databaseQueryTypoScriptParser,
         private readonly ExportConfigurationValidator $exportConfigurationValidator,
         private readonly SpreadsheetWriteService $spreadsheetWriteService,
-        private readonly ResponseFactoryInterface $responseFactory
+        private readonly ResponseFactoryInterface $responseFactory,
+        private readonly UriBuilder $uriBuilder
     ) {}
 
     public function index(ServerRequestInterface $request): ResponseInterface
@@ -45,6 +48,8 @@ final class XlsExportController
             'noConfig' => $modTSconfig === [],
             'datasets' => $this->buildDatasets($modTSconfig, $pageId),
             'pageId' => $pageId,
+            'formats' => $this->availableFormats(),
+            'exportUri' => (string)$this->uriBuilder->buildUriFromRoute(self::MODULE_NAME . '.export'),
         ]);
 
         return $moduleTemplate->renderResponse('XlsExport/Index');
@@ -56,8 +61,8 @@ final class XlsExportController
      */
     public function export(ServerRequestInterface $request): ResponseInterface
     {
-        $pageId = $request->getQueryParams()['id'] ?? null;
-        $configurationKey = $request->getQueryParams()['configuration'] ?? null;
+        $pageId = $this->requestParameter($request, 'id');
+        $configurationKey = $this->requestParameter($request, 'configuration');
         if ($pageId === null || $configurationKey === null) {
             throw new ExportWithoutConfigurationException(
                 'For an export you need a valid configuration key',
@@ -76,25 +81,26 @@ final class XlsExportController
         }
         $rawConfiguration = $modTSconfig[$configurationKey];
         $presentation = $this->exportConfigurationValidator->validatePresentation($rawConfiguration);
+        $format = $this->resolveFormat($request, $presentation['format']);
 
         $exportDataQuery = $this->databaseQueryTypoScriptParser->buildQueryBuilderFromArray(
             $this->exportConfigurationValidator->validate($rawConfiguration)
         );
         $this->databaseQueryTypoScriptParser->replacePlaceholderWithCurrentId($exportDataQuery, $pageId);
 
-        return $this->streamResponse(
-            $this->spreadsheetWriteService->generateSpreadsheet(
-                $exportDataQuery->executeQuery(),
-                $presentation['fieldLabels'],
-                $presentation['format'],
-                $configurationKey
-            )
+        $spreadsheet = $this->spreadsheetWriteService->generateSpreadsheet(
+            $exportDataQuery->executeQuery(),
+            $presentation['fieldLabels'],
+            $format->value,
+            $configurationKey
         );
+
+        return $this->streamResponse($spreadsheet, $format, $this->resolveFilename($request, $configurationKey, $format));
     }
 
     /**
      * @param array<int|string, mixed> $modTSconfig
-     * @return array<int|string, array{label: string, count: int|false}>
+     * @return array<int|string, array{label: string, count: int|false, suggestedFilename: string, defaultFormat: string}>
      */
     private function buildDatasets(array $modTSconfig, int $pageId): array
     {
@@ -106,22 +112,84 @@ final class XlsExportController
             $validated = $this->exportConfigurationValidator->validate($configuration);
             $countQuery = $this->databaseQueryTypoScriptParser->buildCountQueryFromArray($validated);
             $this->databaseQueryTypoScriptParser->replacePlaceholderWithCurrentId($countQuery, $pageId);
-            $label = $configuration['label'] ?? null;
+            $rawLabel = $configuration['label'] ?? null;
+            $label = (is_string($rawLabel) && $rawLabel !== '') ? $rawLabel : $validated['table'];
             $datasets[$configName] = [
-                'label' => (is_string($label) && $label !== '') ? $label : $validated['table'],
+                'label' => $label,
                 'count' => $countQuery->executeQuery()->fetchOne(),
+                'suggestedFilename' => $this->sanitizeFilename($label),
+                'defaultFormat' => $this->configuredFormat($configuration)->value,
             ];
         }
 
         return $datasets;
     }
 
-    private function streamResponse(StreamInterface $spreadsheet): ResponseInterface
+    private function streamResponse(StreamInterface $spreadsheet, ExportFormat $format, string $filename): ResponseInterface
     {
         return $this->responseFactory
             ->createResponse()
             ->withBody($spreadsheet)
-            ->withHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            ->withHeader('Content-Type', $format->mimeType())
+            ->withHeader('Content-Disposition', sprintf('attachment; filename="%s"', $filename));
+    }
+
+    /**
+     * @return array<value-of<ExportFormat>, string>
+     */
+    private function availableFormats(): array
+    {
+        $formats = [];
+        foreach (ExportFormat::cases() as $format) {
+            $formats[$format->value] = $format->label();
+        }
+
+        return $formats;
+    }
+
+    private function resolveFormat(ServerRequestInterface $request, string $configuredFormat): ExportFormat
+    {
+        $requested = $this->requestParameter($request, 'format');
+        if (is_string($requested) && ($fromRequest = ExportFormat::tryFrom(strtolower($requested))) instanceof ExportFormat) {
+            return $fromRequest;
+        }
+
+        return ExportFormat::tryFrom(strtolower($configuredFormat)) ?? ExportFormat::Xlsx;
+    }
+
+    /**
+     * @param array<int|string, mixed> $configuration
+     */
+    private function configuredFormat(array $configuration): ExportFormat
+    {
+        $format = $configuration['format'] ?? null;
+
+        return is_string($format) ? (ExportFormat::tryFrom(strtolower($format)) ?? ExportFormat::Xlsx) : ExportFormat::Xlsx;
+    }
+
+    private function resolveFilename(ServerRequestInterface $request, string $configurationKey, ExportFormat $format): string
+    {
+        $requested = $this->requestParameter($request, 'filename');
+        $base = (is_string($requested) && trim($requested) !== '') ? $requested : $configurationKey;
+
+        return $this->sanitizeFilename($base) . '.' . $format->fileExtension();
+    }
+
+    private function sanitizeFilename(string $name): string
+    {
+        $sanitized = trim((string)preg_replace('/[^\w\-. ]+/u', '_', $name));
+
+        return $sanitized !== '' ? $sanitized : 'export';
+    }
+
+    private function requestParameter(ServerRequestInterface $request, string $name): mixed
+    {
+        $parsedBody = $request->getParsedBody();
+        if (is_array($parsedBody) && array_key_exists($name, $parsedBody)) {
+            return $parsedBody[$name];
+        }
+
+        return $request->getQueryParams()[$name] ?? null;
     }
 
     /**

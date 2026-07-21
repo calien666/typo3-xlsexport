@@ -36,14 +36,26 @@
                     <td class="col-control nowrap">
                         <f:if condition="{dataset.count} > 0">
                             <f:then>
-                                <f:be.link
-                                    route="web_xlsexport.export"
-                                    class="btn btn-default"
-                                    parameters="{configuration: '{configuration}', id: '{pageId}'}"
-                                >
-                                    <core:icon identifier="actions-download"/>
-                                    {f:translate(key: 'index.export', extensionName: 'xlsexport')}
-                                </f:be.link>
+                                <form method="post" action="{exportUri}" class="d-flex gap-2 align-items-center justify-content-end">
+                                    <input type="hidden" name="id" value="{pageId}"/>
+                                    <input type="hidden" name="configuration" value="{configuration}"/>
+                                    <input
+                                        type="text"
+                                        name="filename"
+                                        value="{dataset.suggestedFilename}"
+                                        class="form-control form-control-sm"
+                                        aria-label="{f:translate(key: 'index.filename', extensionName: 'xlsexport')}"
+                                    />
+                                    <select name="format" class="form-select form-select-sm w-auto">
+                                        <f:for each="{formats}" as="formatLabel" key="formatValue">
+                                            <option value="{formatValue}"<f:if condition="{formatValue} == {dataset.defaultFormat}"> selected="selected"</f:if>>{formatLabel}</option>
+                                        </f:for>
+                                    </select>
+                                    <button type="submit" class="btn btn-default btn-sm text-nowrap">
+                                        <core:icon identifier="actions-download"/>
+                                        {f:translate(key: 'index.export', extensionName: 'xlsexport')}
+                                    </button>
+                                </form>
                             </f:then>
                             <f:else>
                                 <span class="btn btn-default disabled">
