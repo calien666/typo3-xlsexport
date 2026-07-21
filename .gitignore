@@ -74,5 +74,8 @@ tests/_output/*
 /contrib/Libraries/
 /contrib/.Build/
 
+# Generated fixture-package autoload files (sbuerk/fixture-packages, created on composerUpdate)
+/packages/
+
 # Refactor working document (not part of the delivered code)
 /REFACTOR_PLAN.md
