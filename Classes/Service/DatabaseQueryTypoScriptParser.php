@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Calien\Xlsexport\Service;
 
+use Calien\Xlsexport\Enum\ExpressionType;
 use Calien\Xlsexport\Enum\QueryParameterType;
 use Calien\Xlsexport\Exception\ExpressionTypeNotValidException;
 use Calien\Xlsexport\Exception\ParameterHasWrongTypeException;
@@ -27,8 +28,8 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
  *
  * @phpstan-type WhereConfiguration array{
  *     fieldName: string,
- *     parameter: float|int|string|float[]|int[]|string[],
- *     type: non-empty-string,
+ *     parameter: float|int|string|array<array-key, float|int|string>,
+ *     type?: non-empty-string,
  *     expressionType: string,
  *     isColumn?: non-empty-string
  * }
@@ -41,10 +42,10 @@ use TYPO3\CMS\Core\Database\Query\QueryBuilder;
  * @phpstan-type QueryConfiguration array{
  *     table: non-empty-string,
  *     alias?: non-empty-string,
- *     select: array<non-empty-string, non-empty-string>,
+ *     select: array<array-key, non-empty-string>,
  *     count?: non-empty-string,
- *     selectLiteral?: array<non-empty-string, non-empty-string>,
- *     where: array<array-key, WhereConfiguration>,
+ *     selectLiteral?: array<array-key, non-empty-string>,
+ *     where?: array<array-key, WhereConfiguration>,
  *     join?: array<array-key, JoinConfiguration>,
  *     leftJoin?: array<array-key, JoinConfiguration>,
  *     rightJoin?: array<array-key, JoinConfiguration>
@@ -72,9 +73,10 @@ final class DatabaseQueryTypoScriptParser
         if (($configuration['selectLiteral'] ?? []) !== []) {
             $statement->selectLiteral(...array_values($configuration['selectLiteral']));
         }
-        if ($configuration['where'] !== []) {
+        $whereConfigurations = $configuration['where'] ?? [];
+        if ($whereConfigurations !== []) {
             $where = [];
-            foreach ($configuration['where'] as $whereConfiguration) {
+            foreach ($whereConfigurations as $whereConfiguration) {
                 $where[] = $this->buildForExpressionType($queryBuilder, $whereConfiguration);
             }
 
@@ -132,147 +134,47 @@ final class DatabaseQueryTypoScriptParser
      * @throws TypeIsNotAllowedAsQuoteException
      * @throws ParameterHasWrongTypeException
      */
-    private function buildForExpressionType(
-        QueryBuilder $queryBuilder,
-        array $configuration
-    ): string {
-        return match ($configuration['expressionType']) {
-            'eq' => $this->buildEquals($queryBuilder, $configuration),
-            'neq' => $this->buildNotEquals($queryBuilder, $configuration),
-            'gt' => $this->buildGreaterThan($queryBuilder, $configuration),
-            'gte' => $this->buildGreaterThanOrEquals($queryBuilder, $configuration),
-            'lt' => $this->buildLessThan($queryBuilder, $configuration),
-            'lte' => $this->buildLessThanOrEquals($queryBuilder, $configuration),
-            'isNull' => $this->buildIsNull($queryBuilder, $configuration['fieldName']),
-            'isNotNull' => $this->buildIsNotNull($queryBuilder, $configuration['fieldName']),
-            'in' => $this->buildIn($queryBuilder, $configuration['fieldName'], $configuration['parameter'], $configuration['type']),
-            'inSet' => $this->buildInSet($queryBuilder, $configuration['fieldName'], $configuration['parameter']),
-            default => throw new ExpressionTypeNotValidException(
+    private function buildForExpressionType(QueryBuilder $queryBuilder, array $configuration): string
+    {
+        $expressionType = ExpressionType::tryFrom($configuration['expressionType']);
+        if ($expressionType === null) {
+            throw new ExpressionTypeNotValidException(
                 sprintf('The given expression type "%s" is not valid', $configuration['expressionType']),
                 1731081406988
-            )
+            );
+        }
+
+        $expr = $queryBuilder->expr();
+
+        return match ($expressionType) {
+            ExpressionType::Equals => $expr->eq($configuration['fieldName'], $this->generateValue($queryBuilder, $configuration)),
+            ExpressionType::NotEquals => $expr->neq($configuration['fieldName'], $this->generateValue($queryBuilder, $configuration)),
+            ExpressionType::GreaterThan => $expr->gt($configuration['fieldName'], $this->generateValue($queryBuilder, $configuration)),
+            ExpressionType::GreaterThanOrEquals => $expr->gte($configuration['fieldName'], $this->generateValue($queryBuilder, $configuration)),
+            ExpressionType::LessThan => $expr->lt($configuration['fieldName'], $this->generateValue($queryBuilder, $configuration)),
+            ExpressionType::LessThanOrEquals => $expr->lte($configuration['fieldName'], $this->generateValue($queryBuilder, $configuration)),
+            ExpressionType::IsNull => $expr->isNull($configuration['fieldName']),
+            ExpressionType::IsNotNull => $expr->isNotNull($configuration['fieldName']),
+            ExpressionType::In => $expr->in($configuration['fieldName'], $queryBuilder->createNamedParameter($configuration['parameter'], $this->resolveParameterType($configuration['type'] ?? ''))),
+            ExpressionType::InSet => $this->buildInSet($queryBuilder, $configuration['fieldName'], $configuration['parameter']),
         };
     }
 
     /**
-     * @param WhereConfiguration $configuration
+     * @param float|int|string|float[]|int[]|string[] $parameter
      * @throws ParameterHasWrongTypeException
-     * @throws TypeIsNotAllowedAsQuoteException
-     */
-    private function buildEquals(QueryBuilder $queryBuilder, array $configuration): string
-    {
-        return $queryBuilder->expr()->eq(
-            $configuration['fieldName'],
-            $this->generateValue($queryBuilder, $configuration)
-        );
-    }
-
-    /**
-     * @param WhereConfiguration $configuration
-     * @throws ParameterHasWrongTypeException
-     * @throws TypeIsNotAllowedAsQuoteException
-     */
-    private function buildNotEquals(QueryBuilder $queryBuilder, array $configuration): string
-    {
-        return $queryBuilder->expr()->neq(
-            $configuration['fieldName'],
-            $this->generateValue($queryBuilder, $configuration)
-        );
-    }
-
-    /**
-     * @param WhereConfiguration $configuration
-     * @throws ParameterHasWrongTypeException
-     * @throws TypeIsNotAllowedAsQuoteException
-     */
-    private function buildGreaterThan(QueryBuilder $queryBuilder, array $configuration): string
-    {
-        return $queryBuilder->expr()->gt(
-            $configuration['fieldName'],
-            $this->generateValue($queryBuilder, $configuration)
-        );
-    }
-
-    /**
-     * @param WhereConfiguration $configuration
-     * @throws ParameterHasWrongTypeException
-     * @throws TypeIsNotAllowedAsQuoteException
-     */
-    private function buildGreaterThanOrEquals(QueryBuilder $queryBuilder, array $configuration): string
-    {
-        return $queryBuilder->expr()->gte(
-            $configuration['fieldName'],
-            $this->generateValue($queryBuilder, $configuration)
-        );
-    }
-
-    /**
-     * @param WhereConfiguration $configuration
-     * @throws ParameterHasWrongTypeException
-     * @throws TypeIsNotAllowedAsQuoteException
-     */
-    private function buildLessThan(QueryBuilder $queryBuilder, array $configuration): string
-    {
-        return $queryBuilder->expr()->lt(
-            $configuration['fieldName'],
-            $this->generateValue($queryBuilder, $configuration)
-        );
-    }
-
-    /**
-     * @param WhereConfiguration $configuration
-     * @throws ParameterHasWrongTypeException
-     * @throws TypeIsNotAllowedAsQuoteException
-     */
-    private function buildLessThanOrEquals(QueryBuilder $queryBuilder, array $configuration): string
-    {
-        return $queryBuilder->expr()->lte(
-            $configuration['fieldName'],
-            $this->generateValue($queryBuilder, $configuration)
-        );
-    }
-
-    private function buildIsNull(QueryBuilder $queryBuilder, string $fieldName): string
-    {
-        return $queryBuilder->expr()->isNull($fieldName);
-    }
-
-    private function buildIsNotNull(QueryBuilder $queryBuilder, string $fieldName): string
-    {
-        return $queryBuilder->expr()->isNotNull($fieldName);
-    }
-
-    /**
-     * @param array<float|int|string>|float|int|string $parameter
      */
     private function buildInSet(QueryBuilder $queryBuilder, string $fieldName, mixed $parameter): string
     {
-        return $queryBuilder->expr()->inSet($fieldName, $queryBuilder->createNamedParameter($parameter, Connection::PARAM_STR));
-    }
-
-    /**
-     * @param array<float|int|string>|float|int|string $parameter
-     * @param non-empty-string $type TSconfig type string, e.g. "Connection::PARAM_INT"
-     * @throws TypeIsNotAllowedAsQuoteException
-     * @throws ParameterHasWrongTypeException
-     */
-    private function buildIn(QueryBuilder $queryBuilder, string $fieldName, mixed $parameter, string $type): string
-    {
-        if (!is_array($parameter)) {
+        if (!is_scalar($parameter)) {
             throw new ParameterHasWrongTypeException(
-                sprintf('Parameter has to be array for building "in" statement, "%s" given', gettype($parameter)),
-                1731094230854
+                sprintf('Parameter for "inSet" has to be scalar, "%s" given', gettype($parameter)),
+                1784678400
             );
         }
-        $quotedParameter = match ($this->resolveParameterType($type)) {
-            Connection::PARAM_STR => $queryBuilder->quoteArrayBasedValueListToStringList($parameter),
-            Connection::PARAM_INT => $queryBuilder->quoteArrayBasedValueListToIntegerList($parameter),
-            default => throw new TypeIsNotAllowedAsQuoteException(
-                'The type can not be quoted for usage as `in`',
-                1731082482677
-            )
-        };
-        return $queryBuilder->expr()->in($fieldName, $quotedParameter);
+
+        // SQLite's inSet emulation rejects placeholders, so the value is quoted inline on every platform.
+        return $queryBuilder->expr()->inSet($fieldName, $queryBuilder->quote((string)$parameter));
     }
 
     /**
@@ -355,14 +257,13 @@ final class DatabaseQueryTypoScriptParser
 
         return $queryBuilder->createNamedParameter(
             $configuration['parameter'],
-            $this->resolveParameterType($configuration['type'])
+            $this->resolveParameterType($configuration['type'] ?? '')
         );
     }
 
     /**
-     * Resolves a TSconfig type string such as "Connection::PARAM_INT" to its parameter-type constant.
+     * Resolves a TSconfig type keyword such as "int" to its QueryBuilder parameter-type constant.
      *
-     * @param non-empty-string $type
      * @throws TypeIsNotAllowedAsQuoteException
      */
     private function resolveParameterType(string $type): ParameterType|ArrayParameterType
