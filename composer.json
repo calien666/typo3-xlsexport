@@ -59,12 +59,14 @@
       "web-dir": ".Build/Web",
       "Package": {
         "providesPackages": {
-          "phpoffice/phpspreadsheet": "Resources/Private/Php/ComposerVendor"
+          "phpoffice/phpspreadsheet": "contrib/Libraries"
         }
       }
     },
     "sbuerk/fixture-packages": {
-      "paths": ["Tests/Functional/Fixtures/Extensions/*"]
+      "paths": [
+        "Tests/Functional/Fixtures/Extensions/*"
+      ]
     }
   }
 }
