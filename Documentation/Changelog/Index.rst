@@ -11,6 +11,19 @@ Changelog
 ..  contents:: Table of contents
     :local:
 
+..  _changelog-unreleased:
+
+Unreleased
+==========
+
+Features
+--------
+
+*   Exports can be filtered without overriding the controller: an overridable ``Filter`` partial,
+    the reserved ``filter`` request parameter and three new PSR-14 events,
+    :ref:`developer-module-view`, :ref:`developer-count-query` and :ref:`developer-export-query`.
+    See :ref:`developer-filter`.
+
 ..  _changelog-5-0-0:
 
 5.0.0 - Declarative, QueryBuilder-based exports

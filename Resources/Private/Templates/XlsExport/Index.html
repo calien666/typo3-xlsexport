@@ -15,6 +15,7 @@
                     </f:be.infobox>
                 </f:then>
                 <f:else>
+                    <f:render partial="Filter" arguments="{_all}"/>
                     <f:render partial="List" arguments="{_all}"/>
                 </f:else>
             </f:if>
