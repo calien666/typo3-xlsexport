@@ -5,12 +5,17 @@ declare(strict_types=1);
 namespace Calien\Xlsexport\Controller;
 
 use Calien\Xlsexport\Enum\ExportFormat;
+use Calien\Xlsexport\Event\Module\ModifyExportModuleViewEvent;
+use Calien\Xlsexport\Event\Query\ModifyExportCountQueryEvent;
+use Calien\Xlsexport\Event\Query\ModifyExportQueryEvent;
 use Calien\Xlsexport\Exception\ConfigurationNotFoundException;
 use Calien\Xlsexport\Exception\ExportWithoutConfigurationException;
 use Calien\Xlsexport\Exception\InvalidExportConfigurationException;
 use Calien\Xlsexport\Service\DatabaseQueryTypoScriptParser;
 use Calien\Xlsexport\Service\ExportConfigurationValidator;
+use Calien\Xlsexport\Service\ExportFilterService;
 use Calien\Xlsexport\Service\SpreadsheetWriteService;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -40,22 +45,32 @@ final class XlsExportController
         private readonly SpreadsheetWriteService $spreadsheetWriteService,
         private readonly ResponseFactoryInterface $responseFactory,
         private readonly UriBuilder $uriBuilder,
-        private readonly FlashMessageService $flashMessageService
+        private readonly FlashMessageService $flashMessageService,
+        private readonly ExportFilterService $exportFilterService,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {}
 
     public function index(ServerRequestInterface $request): ResponseInterface
     {
         $pageId = (int)($request->getQueryParams()['id'] ?? 0);
         $modTSconfig = $this->loadTSconfig($pageId);
+        $filter = $this->exportFilterService->sanitize($this->requestParameter($request, 'filter'));
+        $datasets = $this->buildDatasets($modTSconfig, $pageId, $filter);
 
         $moduleTemplate = $this->moduleTemplateFactory->create($request);
         $moduleTemplate->assignMultiple([
             'noConfig' => $modTSconfig === [],
-            'datasets' => $this->buildDatasets($modTSconfig, $pageId),
+            'datasets' => $datasets,
             'pageId' => $pageId,
             'formats' => $this->availableFormats(),
             'exportUri' => (string)$this->uriBuilder->buildUriFromRoute(self::MODULE_NAME . '.export'),
+            'filter' => $filter,
+            'filterFields' => $this->exportFilterService->formFields($filter),
+            'filterUri' => (string)$this->uriBuilder->buildUriFromRoute(self::MODULE_NAME, ['id' => $pageId]),
         ]);
+        $this->eventDispatcher->dispatch(
+            new ModifyExportModuleViewEvent($moduleTemplate, $request, $pageId, $filter, $datasets)
+        );
 
         return $moduleTemplate->renderResponse('XlsExport/Index');
     }
@@ -92,6 +107,12 @@ final class XlsExportController
             $this->exportConfigurationValidator->validate($rawConfiguration)
         );
         $this->databaseQueryTypoScriptParser->replacePlaceholderWithCurrentId($exportDataQuery, $pageId);
+        $this->eventDispatcher->dispatch(new ModifyExportQueryEvent(
+            $exportDataQuery,
+            $configurationKey,
+            $pageId,
+            $this->exportFilterService->sanitize($this->requestParameter($request, 'filter'))
+        ));
 
         $spreadsheet = $this->spreadsheetWriteService->generateSpreadsheet(
             $exportDataQuery->executeQuery(),
@@ -105,9 +126,10 @@ final class XlsExportController
 
     /**
      * @param array<int|string, mixed> $modTSconfig
+     * @param array<array-key, mixed> $filter
      * @return array<int|string, array{label: string, count: int|false, suggestedFilename: string, defaultFormat: string}>
      */
-    private function buildDatasets(array $modTSconfig, int $pageId): array
+    private function buildDatasets(array $modTSconfig, int $pageId, array $filter): array
     {
         $datasets = [];
         foreach ($modTSconfig as $configName => $configuration) {
@@ -115,7 +137,7 @@ final class XlsExportController
                 continue;
             }
             try {
-                $datasets[$configName] = $this->buildDataset($configuration, $pageId);
+                $datasets[$configName] = $this->buildDataset((string)$configName, $configuration, $pageId, $filter);
             } catch (InvalidExportConfigurationException $exception) {
                 $this->flashInvalidConfiguration((string)$configName, $exception);
             }
@@ -126,14 +148,16 @@ final class XlsExportController
 
     /**
      * @param array<int|string, mixed> $configuration
+     * @param array<array-key, mixed> $filter
      * @return array{label: string, count: int|false, suggestedFilename: string, defaultFormat: string}
      * @throws InvalidExportConfigurationException
      */
-    private function buildDataset(array $configuration, int $pageId): array
+    private function buildDataset(string $configurationKey, array $configuration, int $pageId, array $filter): array
     {
         $validated = $this->exportConfigurationValidator->validate($configuration);
         $countQuery = $this->databaseQueryTypoScriptParser->buildCountQueryFromArray($validated);
         $this->databaseQueryTypoScriptParser->replacePlaceholderWithCurrentId($countQuery, $pageId);
+        $this->eventDispatcher->dispatch(new ModifyExportCountQueryEvent($countQuery, $configurationKey, $pageId, $filter));
         $rawLabel = $configuration['label'] ?? null;
         $label = (is_string($rawLabel) && $rawLabel !== '') ? $rawLabel : $validated['table'];
 

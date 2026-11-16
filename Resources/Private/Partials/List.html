@@ -39,6 +39,9 @@
                                 <form method="post" action="{exportUri}" class="d-flex gap-2 align-items-center justify-content-end">
                                     <input type="hidden" name="id" value="{pageId}"/>
                                     <input type="hidden" name="configuration" value="{configuration}"/>
+                                    <f:for each="{filterFields}" as="filterField">
+                                        <input type="hidden" name="{filterField.name}" value="{filterField.value}"/>
+                                    </f:for>
                                     <input
                                         type="text"
                                         name="filename"
