@@ -13,7 +13,7 @@
     },
     "require": {
         "php": "^8.2 || ^8.3 || ^8.4 || ^8.5",
-        "phpoffice/phpspreadsheet": "^3"
+        "phpoffice/phpspreadsheet": "^5.11.0"
     },
     "replace": {
         "composer/pcre": "*"
