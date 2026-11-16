@@ -126,8 +126,8 @@ Prerequisites:
 ```bash
 echo '>> Create release' ; \
   RELEASE_BRANCH='main' ; \
-  RELEASE_VERSION='5.0.0' ; \
-  NEXT_DEV_VERSION='5.0.1' ; \
+  RELEASE_VERSION='5.1.0' ; \
+  NEXT_DEV_VERSION='5.1.1' ; \
   git checkout main && \
   git fetch --all && \
   git pull --rebase && \
